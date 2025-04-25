@@ -7,6 +7,9 @@ import java.util.List;
 
 public final class ReflectionUtils {
 
+    private ReflectionUtils() {
+    }
+
     public static List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
         Class<?> currentClass = clazz;
@@ -15,5 +18,18 @@ public final class ReflectionUtils {
             currentClass = currentClass.getSuperclass();
         }
         return fields;
+    }
+
+    public static <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
+        return clazz.getDeclaredConstructor().newInstance();
+    }
+
+    public static void setFieldValue(Object instance, Field field, Object value) throws ReflectiveOperationException {
+        field.setAccessible(true);
+        field.set(instance, value);
+    }
+
+    public static boolean isPrimitiveType(Field field) {
+        return field.getType().isPrimitive();
     }
 }

@@ -24,10 +24,9 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
     }
 
     @Override
-    @SuppressWarnings("java:S3011")
     public T mapRow(ResultSet resultSet) throws SQLException {
         try {
-            T instance = targetClass.getDeclaredConstructor().newInstance();
+            T instance = ReflectionUtils.createInstance(targetClass);
             Set<String> availableColumns = this.getAvailableColumns(resultSet);
 
             for (Map.Entry<String, FieldInfo> entry : mappings.entrySet()) {
@@ -40,13 +39,15 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
                 Object value = fieldInfo.converter.convert(resultSet, columnName, mappingInfo);
 
                 if (value != null || !fieldInfo.isPrimitive) {
-                    Field field = fieldInfo.field;
-                    field.setAccessible(true);
-                    field.set(instance, value);
+                    try {
+                        ReflectionUtils.setFieldValue(instance, fieldInfo.field, value);
+                    } catch (ReflectiveOperationException e) {
+                        throw new SQLException("Error setting field value", e);
+                    }
                 }
             }
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new SQLException("Error mapping to: " + targetClass.getSimpleName(), e);
         }
     }
@@ -57,23 +58,21 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
 
             if (annotation == null) continue;
 
-            String columnName = annotation.value();
-            boolean isPrimitive = field.getType().isPrimitive();
-            String format = annotation.format();
-
             Class<? extends ValueConverter<?>> converterClass = annotation.converter();
-
             ValueConverter<?> converter = converterCache.computeIfAbsent(
                     converterClass,
                     clazz -> {
                         try {
-                            return clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
+                            return ReflectionUtils.createInstance(clazz);
+                        } catch (ReflectiveOperationException e) {
                             throw new IllegalStateException("Cannot instantiate converter: " + clazz, e);
                         }
                     }
             );
 
+            String columnName = annotation.value();
+            String format = annotation.format();
+            boolean isPrimitive = ReflectionUtils.isPrimitiveType(field);
             mappings.put(columnName, new FieldInfo(field, format, isPrimitive, converter));
         }
     }
