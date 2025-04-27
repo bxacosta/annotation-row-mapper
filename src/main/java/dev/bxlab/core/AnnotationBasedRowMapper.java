@@ -35,8 +35,8 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
                 if (!availableColumns.contains(columnName.toLowerCase())) continue;
 
                 FieldInfo fieldInfo = entry.getValue();
-                MappingInfo mappingInfo = new MappingInfo(fieldInfo.field, fieldInfo.format);
-                Object value = fieldInfo.converter.convert(resultSet, columnName, mappingInfo);
+                MappingInfo mappingInfo = new MappingInfo(fieldInfo.field, fieldInfo.format, columnName);
+                Object value = fieldInfo.converter.convert(resultSet, mappingInfo);
 
                 if (value != null || !fieldInfo.isPrimitive) {
                     try {

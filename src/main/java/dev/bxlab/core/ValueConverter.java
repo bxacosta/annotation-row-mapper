@@ -6,5 +6,5 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface ValueConverter<T> {
 
-    T convert(ResultSet resultSet, String columnName, MappingInfo mappingInfo) throws SQLException;
+    T convert(ResultSet resultSet, MappingInfo mappingInfo) throws SQLException;
 }

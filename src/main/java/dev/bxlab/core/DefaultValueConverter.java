@@ -10,8 +10,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class DefaultValueConverter implements ValueConverter<Object> {
+
     @Override
-    public Object convert(ResultSet resultSet, String columnName, MappingInfo mappingInfo) throws SQLException {
+    public Object convert(ResultSet resultSet, MappingInfo mappingInfo) throws SQLException {
+        String columnName = mappingInfo.columnName();
+
         if (resultSet.getObject(columnName) == null) return null;
 
         Class<?> targetType = mappingInfo.field().getType();
