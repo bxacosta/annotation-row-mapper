@@ -35,12 +35,12 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
                 if (!availableColumns.contains(columnName.toLowerCase())) continue;
 
                 FieldInfo fieldInfo = entry.getValue();
-                MappingInfo mappingInfo = new MappingInfo(fieldInfo.field, fieldInfo.format, columnName);
-                Object value = fieldInfo.converter.convert(resultSet, mappingInfo);
+                MappingContext mappingContext = new MappingContext(fieldInfo.field(), fieldInfo.format(), columnName);
+                Object value = fieldInfo.converter().convert(resultSet, mappingContext);
 
-                if (value != null || !fieldInfo.isPrimitive) {
+                if (value != null || !fieldInfo.isPrimitive()) {
                     try {
-                        ReflectionUtils.setFieldValue(instance, fieldInfo.field, value);
+                        ReflectionUtils.setFieldValue(instance, fieldInfo.field(), value);
                     } catch (ReflectiveOperationException e) {
                         throw new SQLException("Error setting field value", e);
                     }
@@ -87,12 +87,5 @@ public class AnnotationBasedRowMapper<T> implements ResultSetMapper<T> {
         }
 
         return columns;
-    }
-
-    private record FieldInfo(
-            Field field,
-            String format,
-            boolean isPrimitive,
-            ValueConverter<?> converter) {
     }
 }

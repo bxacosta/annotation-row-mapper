@@ -1,6 +1,6 @@
 package dev.bxlab.converters;
 
-import dev.bxlab.core.MappingInfo;
+import dev.bxlab.core.MappingContext;
 import dev.bxlab.core.ValueConverter;
 
 import java.sql.Date;
@@ -14,9 +14,9 @@ import java.util.Optional;
 
 public class DefaultValueConverter implements ValueConverter<Object> {
 
-    public static TypeConverter<LocalDate> localDateConverter = (ResultSet resultSet, MappingInfo mappingInfo) -> {
-        String format = mappingInfo.format();
-        String columnName = mappingInfo.columnName();
+    public static TypeConverter<LocalDate> localDateConverter = (ResultSet resultSet, MappingContext mappingContext) -> {
+        String format = mappingContext.format();
+        String columnName = mappingContext.columnName();
 
         if (!format.isEmpty()) {
             return Optional.ofNullable(resultSet.getString(columnName))
@@ -29,9 +29,9 @@ public class DefaultValueConverter implements ValueConverter<Object> {
                 .orElse(null);
     };
 
-    public static TypeConverter<LocalDateTime> localDateTimeConverter = (ResultSet resultSet, MappingInfo mappingInfo) -> {
-        String format = mappingInfo.format();
-        String columnName = mappingInfo.columnName();
+    public static TypeConverter<LocalDateTime> localDateTimeConverter = (ResultSet resultSet, MappingContext mappingContext) -> {
+        String format = mappingContext.format();
+        String columnName = mappingContext.columnName();
 
         if (!format.isEmpty()) {
             return Optional.ofNullable(resultSet.getString(columnName))
@@ -45,12 +45,12 @@ public class DefaultValueConverter implements ValueConverter<Object> {
     };
 
     @Override
-    public Object convert(ResultSet resultSet, MappingInfo mappingInfo) throws SQLException {
-        String columnName = mappingInfo.columnName();
+    public Object convert(ResultSet resultSet, MappingContext mappingContext) throws SQLException {
+        String columnName = mappingContext.columnName();
 
         if (resultSet.getObject(columnName) == null) return null;
 
-        Class<?> targetType = mappingInfo.field().getType();
+        Class<?> targetType = mappingContext.field().getType();
 
         return switch (targetType.getName()) {
             case "java.lang.String" -> resultSet.getString(columnName);
@@ -67,8 +67,8 @@ public class DefaultValueConverter implements ValueConverter<Object> {
                 boolean value = resultSet.getBoolean(columnName);
                 yield resultSet.wasNull() ? null : value;
             }
-            case "java.time.LocalDate" -> localDateConverter.convert(resultSet, mappingInfo);
-            case "java.time.LocalDateTime" -> localDateTimeConverter.convert(resultSet, mappingInfo);
+            case "java.time.LocalDate" -> localDateConverter.convert(resultSet, mappingContext);
+            case "java.time.LocalDateTime" -> localDateTimeConverter.convert(resultSet, mappingContext);
             case "java.lang.Double", "double" -> {
                 double value = resultSet.getDouble(columnName);
                 yield resultSet.wasNull() ? null : value;
