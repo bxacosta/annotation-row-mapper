@@ -1,7 +1,7 @@
 package dev.bxlab.converters;
 
-import dev.bxlab.core.FieldMappingConfig;
-import dev.bxlab.utils.DateParserUtils;
+import dev.bxlab.configs.FieldConfig;
+import dev.bxlab.utils.ConverterUtils;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -16,43 +16,39 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class DefaultConverters {
+public final class BasicConverters {
 
+    public static final TypeConverter<Object> OBJECT = createBasicConverter(ResultSet::getObject);
     public static final TypeConverter<String> STRING = createBasicConverter(ResultSet::getString);
     public static final TypeConverter<BigDecimal> BIG_DECIMAL = createBasicConverter(ResultSet::getBigDecimal);
-
     public static final TypeConverter<Integer> INTEGER = createPrimitiveConverter(ResultSet::getInt);
     public static final TypeConverter<Boolean> BOOLEAN = createPrimitiveConverter(ResultSet::getBoolean);
     public static final TypeConverter<Double> DOUBLE = createPrimitiveConverter(ResultSet::getDouble);
     public static final TypeConverter<Float> FLOAT = createPrimitiveConverter(ResultSet::getFloat);
     public static final TypeConverter<Long> LONG = createPrimitiveConverter(ResultSet::getLong);
     public static final TypeConverter<Short> SHORT = createPrimitiveConverter(ResultSet::getShort);
-
     public static final TypeConverter<Date> DATE = createDateConverter(
             ResultSet::getTimestamp,
             Function.identity(),
-            DateParserUtils::toDate
+            ConverterUtils::toDate
     );
-
     public static final TypeConverter<LocalDate> LOCAL_DATE = createDateConverter(
             ResultSet::getDate,
             java.sql.Date::toLocalDate,
-            DateParserUtils::toLocalDate
+            ConverterUtils::toLocalDate
     );
-
     public static final TypeConverter<LocalDateTime> LOCAL_DATE_TIME = createDateConverter(
             ResultSet::getTimestamp,
             Timestamp::toLocalDateTime,
-            DateParserUtils::toLocalDateTime
+            ConverterUtils::toLocalDateTime
     );
-
     public static final TypeConverter<ZonedDateTime> ZONED_DATE_TIME = createDateConverter(
             ResultSet::getTimestamp,
             timestamp -> timestamp.toInstant().atZone(ZoneId.systemDefault()),
-            DateParserUtils::toZonedDateTime
+            ConverterUtils::toZonedDateTime
     );
 
-    private DefaultConverters() {
+    private BasicConverters() {
     }
 
     public static void registerDefaults(ConverterRegistry registry) {
@@ -79,14 +75,14 @@ public final class DefaultConverters {
     }
 
     private static <T> TypeConverter<T> createPrimitiveConverter(ResultSetGetter<T> getter) {
-        return (resultSet, config) -> {
-            T value = getter.get(resultSet, config.columnName());
+        return (resultSet, fieldConfig) -> {
+            T value = getter.get(resultSet, fieldConfig.getColumnName().orElseThrow());
             return resultSet.wasNull() ? null : value;
         };
     }
 
     private static <T> TypeConverter<T> createBasicConverter(ResultSetGetter<T> getter) {
-        return (resultSet, config) -> getter.get(resultSet, config.columnName());
+        return (resultSet, fieldConfig) -> getter.get(resultSet, fieldConfig.getColumnName().orElseThrow());
     }
 
     private static <T, U> TypeConverter<T> createDateConverter(
@@ -94,9 +90,9 @@ public final class DefaultConverters {
             Function<U, T> converter,
             BiFunction<String, String, T> formatter) {
 
-        return (resultSet, config) -> {
-            String columnName = config.columnName();
-            Optional<String> format = config.getAttribute(FieldMappingConfig.FORMAT_ATTRIBUTE, String.class);
+        return (resultSet, fieldConfig) -> {
+            String columnName = fieldConfig.getColumnName().orElseThrow();
+            Optional<String> format = fieldConfig.getAttribute(FieldConfig.FORMAT_ATTRIBUTE, String.class);
 
             return format.isEmpty()
                     ? Optional.ofNullable(getter.get(resultSet, columnName)).map(converter).orElse(null)

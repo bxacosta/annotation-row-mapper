@@ -1,5 +1,8 @@
 package dev.bxlab.utils;
 
+import dev.bxlab.converters.DefaultConverter;
+import dev.bxlab.converters.TypeConverter;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,8 +11,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public final class DateParserUtils {
-    private DateParserUtils() {
+public final class ConverterUtils {
+    private ConverterUtils() {
     }
 
     public static LocalDate toLocalDate(String value, String format) {
@@ -27,5 +30,9 @@ public final class DateParserUtils {
     public static Date toDate(String value, String format) {
         Instant instant = toLocalDateTime(value, format).atZone(ZoneId.systemDefault()).toInstant();
         return Date.from(instant);
+    }
+
+    public static boolean isDefaultConverter(TypeConverter<?> converter) {
+        return converter instanceof DefaultConverter;
     }
 }

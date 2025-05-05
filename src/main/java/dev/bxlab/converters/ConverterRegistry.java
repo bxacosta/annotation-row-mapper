@@ -10,28 +10,31 @@ public class ConverterRegistry {
 
     public static ConverterRegistry withDefaults() {
         ConverterRegistry registry = new ConverterRegistry();
-        DefaultConverters.registerDefaults(registry);
+        BasicConverters.registerDefaults(registry);
         return registry;
     }
 
-    public <T> void register(Class<T> type, TypeConverter<T> converter) {
+    public void register(Class<?> type, TypeConverter<?> converter) {
         this.converters.put(type, converter);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Optional<TypeConverter<T>> lockup(Class<T> type) {
+    public Optional<TypeConverter<?>> lockup(Class<?> type) {
         // Check for exact match
         TypeConverter<?> converter = converters.get(type);
-        if (converter != null) return Optional.of((TypeConverter<T>) converter);
+        if (converter != null) return Optional.of(converter);
 
         // Check for assignable match
         for (Map.Entry<Class<?>, TypeConverter<?>> converterEntry : this.converters.entrySet()) {
             Class<?> converterType = converterEntry.getKey();
 
             if (converterType.isAssignableFrom(type))
-                return Optional.ofNullable((TypeConverter<T>) converterEntry.getValue());
+                return Optional.ofNullable(converterEntry.getValue());
         }
 
         return Optional.empty();
+    }
+
+    public Map<Class<?>, TypeConverter<?>> getConverters() {
+        return converters;
     }
 }

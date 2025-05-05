@@ -1,6 +1,7 @@
 package dev.bxlab.core;
 
-import dev.bxlab.converters.DefaultValueConverter;
+import dev.bxlab.converters.DefaultConverter;
+import dev.bxlab.converters.TypeConverter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,10 +11,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnMapping {
-    String value();
+    String value() default "";
 
     String format() default "";
 
-    @SuppressWarnings("java:S1452")
-    Class<? extends ValueConverter<?>> converter() default DefaultValueConverter.class;
+    Class<? extends TypeConverter<?>> converter() default DefaultConverter.class;
 }
