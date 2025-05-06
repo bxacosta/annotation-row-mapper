@@ -24,7 +24,7 @@ public final class ReflectionUtils {
         return clazz.getDeclaredConstructor().newInstance();
     }
 
-    public static void setFieldValue(Object instance, Field field, Object value) throws ReflectiveOperationException {
+    public static void setFieldValue(Object instance, Field field, Object value) throws IllegalAccessException {
         field.setAccessible(true);
         field.set(instance, value);
     }
