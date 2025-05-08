@@ -2,10 +2,9 @@ package dev.bxlab.core;
 
 import dev.bxlab.configs.FieldConfig;
 import dev.bxlab.configs.MapperConfig;
-import dev.bxlab.converters.ConverterRegistry;
 import dev.bxlab.converters.BasicConverters;
+import dev.bxlab.converters.ConverterRegistry;
 import dev.bxlab.converters.TypeConverter;
-import dev.bxlab.utils.ConverterUtils;
 import dev.bxlab.utils.ExceptionHandler;
 import dev.bxlab.utils.ReflectionUtils;
 
@@ -16,8 +15,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
 
@@ -46,7 +45,7 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
     }
 
     @Override
-    public T mapRow(ResultSet resultSet) throws SQLException {
+    public T map(ResultSet resultSet) throws SQLException {
         T targetInstance = ExceptionHandler.map(() -> ReflectionUtils.createInstance(targetType),
                 (e) -> new IllegalStateException("Error mapping to: " + targetType.getSimpleName(), e));
 
@@ -85,21 +84,27 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
             if (mappingAnnotation == null) continue;
 
             try {
-                // TODO: merge fields, prioritizing mapper config
-                FieldConfig fieldConfig = this.mapperConfig.getFieldConfig(field).orElse(FieldConfig.from(mappingAnnotation));
+                // Determine field config based on priority: mapperConfig > mappingAnnotation > default config strategies
+                FieldConfig annotationFieldConfig = FieldConfig.from(mappingAnnotation);
+                Optional<FieldConfig> mapperFieldConfig = this.mapperConfig.getFieldConfig(field.getName());
 
-                TypeConverter<?> converter = fieldConfig.getConverter()
-                        .filter(Predicate.not(ConverterUtils::isDefaultConverter))
+                String columnName = mapperFieldConfig
+                        .flatMap(FieldConfig::getColumnName)
+                        .or(annotationFieldConfig::getColumnName)
+                        .orElse(this.mapperConfig.namingStrategy().fieldToColumnName(field.getName()));
+
+                TypeConverter<?> converter = mapperFieldConfig.flatMap(FieldConfig::getConverter)
+                        .or(annotationFieldConfig::getConverter)
                         .or(() -> this.converterRegistry.lockup(field.getType()))
                         .orElse(BasicConverters.OBJECT);
 
-                String columnName = fieldConfig.getColumnName()
-                        .orElse(this.mapperConfig.namingStrategy().fieldToColumnName(field.getName()));
+                Map<String, Object> attributes = new HashMap<>(annotationFieldConfig.getAttributes());
+                mapperFieldConfig.ifPresent(fieldConfig -> attributes.putAll(fieldConfig.getAttributes()));
 
                 mappings.put(field, FieldConfig.builder()
                         .toColumn(columnName)
                         .withConverter(converter)
-                        .withAttributes(fieldConfig.getAttributes())
+                        .withAttributes(attributes)
                         .build());
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Cannot instantiate converter: " + mappingAnnotation.converter(), e);

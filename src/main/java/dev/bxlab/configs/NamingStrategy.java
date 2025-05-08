@@ -3,26 +3,31 @@ package dev.bxlab.configs;
 import java.util.function.Function;
 
 public enum NamingStrategy {
-    AS_IS(name -> name),
-    SNAKE_CASE(name -> {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            if (Character.isUpperCase(c)) {
-                if (i > 0) result.append('_');
-                result.append(Character.toLowerCase(c));
-            } else {
-                result.append(c);
-            }
-        }
-        return result.toString();
-    }),
-    UPPER_SNAKE_CASE(name -> SNAKE_CASE.fieldToColumnName(name).toUpperCase());
+    AS_IS(Function.identity()),
+    SNAKE_CASE(NamingStrategy::camelToSnake),
+    UPPER_SNAKE_CASE(name -> NamingStrategy.camelToSnake(name).toUpperCase());
 
     private final Function<String, String> converter;
 
     NamingStrategy(Function<String, String> converter) {
         this.converter = converter;
+    }
+
+    private static String camelToSnake(String value) {
+        if (value.isEmpty() || value.length() == 1) return value.toLowerCase();
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < value.length(); i++) {
+            char character = value.charAt(i);
+            if (Character.isUpperCase(character)) {
+                builder.append("_").append(Character.toLowerCase(character));
+            } else {
+                builder.append(character);
+            }
+        }
+
+        return builder.toString();
     }
 
     public String fieldToColumnName(String fieldName) {

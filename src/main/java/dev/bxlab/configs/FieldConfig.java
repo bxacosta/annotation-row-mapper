@@ -54,7 +54,7 @@ public class FieldConfig {
     }
 
     public Map<String, Object> getAttributes() {
-        return this.attributes;
+        return this.attributes == null ? new HashMap<>() : attributes;
     }
 
     public <T> Optional<T> getAttribute(String key, Class<T> type) {

@@ -1,6 +1,5 @@
 package dev.bxlab.configs;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -22,9 +21,9 @@ public record MapperConfig(
         );
     }
 
-    public Optional<FieldConfig> getFieldConfig(Field field) {
+    public Optional<FieldConfig> getFieldConfig(String fieldName) {
         if (fieldMappingConfigs == null) return Optional.empty();
 
-        return Optional.ofNullable(fieldMappingConfigs.get(field.getName()));
+        return Optional.ofNullable(fieldMappingConfigs.get(fieldName));
     }
 }
