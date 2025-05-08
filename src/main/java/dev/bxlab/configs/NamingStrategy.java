@@ -14,20 +14,21 @@ public enum NamingStrategy {
     }
 
     private static String camelToSnake(String value) {
-        if (value.isEmpty() || value.length() == 1) return value.toLowerCase();
-
-        StringBuilder builder = new StringBuilder();
-
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < value.length(); i++) {
             char character = value.charAt(i);
             if (Character.isUpperCase(character)) {
-                builder.append("_").append(Character.toLowerCase(character));
+                boolean prevIsLower = i > 0 && Character.isLowerCase(value.charAt(i - 1));
+                boolean nextIsLower = i + 1 < value.length() && Character.isLowerCase(value.charAt(i + 1));
+
+                if (i > 0 && (prevIsLower || nextIsLower)) result.append('_');
+
+                result.append(Character.toLowerCase(character));
             } else {
-                builder.append(character);
+                result.append(character);
             }
         }
-
-        return builder.toString();
+        return result.toString();
     }
 
     public String fieldToColumnName(String fieldName) {
