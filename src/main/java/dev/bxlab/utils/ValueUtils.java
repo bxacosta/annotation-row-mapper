@@ -3,9 +3,9 @@ package dev.bxlab.utils;
 import java.util.Collection;
 import java.util.Map;
 
-public final class FieldUtils {
+public final class ValueUtils {
 
-    private FieldUtils() {
+    private ValueUtils() {
     }
 
     public static <T> T ifEmpty(T value, T other) {
@@ -24,6 +24,11 @@ public final class FieldUtils {
 
     public static <T> T requireNonEmpty(T value, String message) {
         if (isEmpty(value)) throw new IllegalArgumentException(message);
+        return value;
+    }
+
+    public static <T> T requireNonNull(T value, String message) {
+        if (value == null) throw new IllegalArgumentException(message);
         return value;
     }
 }

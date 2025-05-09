@@ -1,29 +1,49 @@
 package dev.bxlab.configs;
 
-import java.util.HashMap;
+import dev.bxlab.core.RowMapperBuilder;
+import dev.bxlab.utils.ValueUtils;
+
 import java.util.Map;
 import java.util.Optional;
 
-public record MapperConfig(
-        boolean ignoreUnknownColumns,
-        boolean ignoreMissingConverter,
-        boolean caseInsensitiveColumns,
-        NamingStrategy namingStrategy,
-        Map<String, FieldConfig> fieldMappingConfigs
-) {
-    public static MapperConfig withDefaults() {
-        return new MapperConfig(
-                true,
-                false,
-                true,
-                NamingStrategy.AS_IS,
-                new HashMap<>()
-        );
+public class MapperConfig {
+
+    private final boolean ignoreUnknownColumns;
+    private final boolean ignoreMissingConverter;
+    private final boolean caseInsensitiveColumns;
+    private final NamingStrategy namingStrategy;
+    private final Map<String, FieldConfig> fieldMappingConfigs;
+
+    public MapperConfig(RowMapperBuilder<?> builder) {
+        this.ignoreUnknownColumns = builder.isIgnoreUnknownColumns();
+        this.ignoreMissingConverter = builder.isIgnoreMissingConverters();
+        this.caseInsensitiveColumns = builder.isCaseInsensitiveColumns();
+        this.namingStrategy = ValueUtils.requireNonNull(builder.getNamingStrategy(), "Naming strategy can not be null");
+        this.fieldMappingConfigs = ValueUtils.requireNonNull(builder.getFieldConfigs(), "Field mapping configurations can not be null");
     }
 
     public Optional<FieldConfig> getFieldConfig(String fieldName) {
-        if (fieldMappingConfigs == null) return Optional.empty();
+        if (this.fieldMappingConfigs == null) return Optional.empty();
+        return Optional.ofNullable(this.fieldMappingConfigs.get(fieldName));
+    }
 
-        return Optional.ofNullable(fieldMappingConfigs.get(fieldName));
+    public boolean isIgnoreUnknownColumns() {
+        return ignoreUnknownColumns;
+    }
+
+    public boolean isIgnoreMissingConverter() {
+        return ignoreMissingConverter;
+    }
+
+    public boolean isCaseInsensitiveColumns() {
+        return caseInsensitiveColumns;
+    }
+
+    public NamingStrategy getNamingStrategy() {
+        return namingStrategy;
+    }
+
+    public Map<String, FieldConfig> getFieldMappingConfigs() {
+        return fieldMappingConfigs;
     }
 }

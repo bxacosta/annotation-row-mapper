@@ -3,12 +3,11 @@ package dev.bxlab.configs;
 import dev.bxlab.converters.TypeConverter;
 import dev.bxlab.core.ColumnMapping;
 import dev.bxlab.utils.ConverterUtils;
-import dev.bxlab.utils.FieldUtils;
 import dev.bxlab.utils.ReflectionUtils;
+import dev.bxlab.utils.ValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 public class FieldConfig {
@@ -19,19 +18,19 @@ public class FieldConfig {
     private final Map<String, Object> attributes;
 
     private FieldConfig(FieldConfigBuilder builder) {
-        this.columnName = FieldUtils.ifEmpty(builder.columnName, null);
-        this.converter = FieldUtils.ifEmpty(builder.converter, null);
-        this.attributes = FieldUtils.ifEmpty(builder.attributes, new HashMap<>());
+        this.columnName = builder.columnName;
+        this.converter = builder.converter;
+        this.attributes = builder.attributes;
     }
 
     public static FieldConfig from(ColumnMapping mappingAnnotation) throws ReflectiveOperationException {
-        String columName = FieldUtils.ifEmpty(mappingAnnotation.value(), null);
+        String columName = ValueUtils.ifEmpty(mappingAnnotation.value(), null);
 
         TypeConverter<?> converter = ReflectionUtils.createInstance(mappingAnnotation.converter());
         if (ConverterUtils.isDefaultConverter(converter)) converter = null;
 
         Map<String, Object> attributes = new HashMap<>();
-        if (!FieldUtils.isEmpty(mappingAnnotation.format()))
+        if (!ValueUtils.isEmpty(mappingAnnotation.format()))
             attributes.put(FORMAT_ATTRIBUTE, mappingAnnotation.format());
 
         return FieldConfig.builder()
@@ -59,7 +58,7 @@ public class FieldConfig {
 
     public <T> Optional<T> getAttribute(String key, Class<T> type) {
         Object value = this.attributes.get(key);
-        return FieldUtils.isEmpty(value) ? Optional.empty() : Optional.of(type.cast(value));
+        return ValueUtils.isEmpty(value) ? Optional.empty() : Optional.of(type.cast(value));
     }
 
     public static class FieldConfigBuilder {
@@ -93,13 +92,13 @@ public class FieldConfig {
         }
 
         public FieldConfig build() {
-            if (this.columnName != null) FieldUtils.requireNonEmpty(this.columnName, "Column name can not be empty");
+            if (this.columnName != null) ValueUtils.requireNonEmpty(this.columnName, "Column name can not be empty");
 
-            Objects.requireNonNull(this.attributes, "Attributes can not be null");
+            ValueUtils.requireNonNull(this.attributes, "Attributes can not be null");
 
             this.attributes.forEach((key, value) -> {
-                FieldUtils.requireNonEmpty(key, "Attribute key can not be empty");
-                FieldUtils.requireNonEmpty(value, "Attribute value can not be empty");
+                ValueUtils.requireNonEmpty(key, "Attribute key can not be empty");
+                ValueUtils.requireNonEmpty(value, "Attribute value can not be empty");
             });
 
             return new FieldConfig(this);

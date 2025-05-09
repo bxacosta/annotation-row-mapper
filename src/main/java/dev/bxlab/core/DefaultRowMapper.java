@@ -18,27 +18,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
+public class DefaultRowMapper<T> implements ResultSetMapper<T> {
 
     private final Class<T> targetType;
     private final MapperConfig mapperConfig;
     private final Map<Field, FieldConfig> mappings;
     private final ConverterRegistry converterRegistry;
 
-    protected DefaultResultSetMapper(MapperBuilder<T> builder) {
+    protected DefaultRowMapper(RowMapperBuilder<T> builder) {
         this.targetType = builder.getTargetType();
-        this.mapperConfig = new MapperConfig(
-                builder.isIgnoreUnknownColumns(),
-                builder.isIgnoreMissingConverters(),
-                builder.isCaseInsensitiveColumns(),
-                builder.getNamingStrategy(),
-                builder.getFieldConfigs()
-        );
+        this.mapperConfig = new MapperConfig(builder);
         this.converterRegistry = builder.isIncludeDefaultConverters()
                 ? ConverterRegistry.withDefaults()
-                : new ConverterRegistry();
-
-        builder.getConverterRegistry().getConverters().forEach(converterRegistry::register);
+                : new ConverterRegistry(builder.getConverterRegistry().getConverters());
 
         this.mappings = new HashMap<>();
         this.initializeMappings();
@@ -46,12 +38,12 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
 
     @Override
     public T map(ResultSet resultSet) throws SQLException {
-        T targetInstance = ExceptionHandler.map(() -> ReflectionUtils.createInstance(targetType),
-                (e) -> new IllegalStateException("Error mapping to: " + targetType.getSimpleName(), e));
+        T targetInstance = ExceptionHandler.map(() -> ReflectionUtils.createInstance(this.targetType),
+                (e) -> new IllegalStateException("Error mapping to: " + this.targetType.getSimpleName(), e));
 
         Set<String> availableColumns = this.getAvailableColumns(resultSet);
 
-        for (Map.Entry<Field, FieldConfig> entry : mappings.entrySet()) {
+        for (Map.Entry<Field, FieldConfig> entry : this.mappings.entrySet()) {
             FieldConfig fieldConfig = entry.getValue();
 
             if (!availableColumns.contains(fieldConfig.getColumnName().orElseThrow().toLowerCase())) continue;
@@ -71,7 +63,8 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
         ResultSetMetaData metaData = rs.getMetaData();
 
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            columns.add(metaData.getColumnLabel(i).toLowerCase());
+            String columnName = metaData.getColumnLabel(i);
+            columns.add(this.mapperConfig.isCaseInsensitiveColumns() ? columnName.toLowerCase() : columnName);
         }
 
         return columns;
@@ -91,7 +84,7 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
                 String columnName = mapperFieldConfig
                         .flatMap(FieldConfig::getColumnName)
                         .or(annotationFieldConfig::getColumnName)
-                        .orElse(this.mapperConfig.namingStrategy().fieldToColumnName(field.getName()));
+                        .orElse(this.mapperConfig.getNamingStrategy().fieldToColumnName(field.getName()));
 
                 TypeConverter<?> converter = mapperFieldConfig.flatMap(FieldConfig::getConverter)
                         .or(annotationFieldConfig::getConverter)
@@ -101,7 +94,7 @@ public class DefaultResultSetMapper<T> implements ResultSetMapper<T> {
                 Map<String, Object> attributes = new HashMap<>(annotationFieldConfig.getAttributes());
                 mapperFieldConfig.ifPresent(fieldConfig -> attributes.putAll(fieldConfig.getAttributes()));
 
-                mappings.put(field, FieldConfig.builder()
+                this.mappings.put(field, FieldConfig.builder()
                         .toColumn(columnName)
                         .withConverter(converter)
                         .withAttributes(attributes)

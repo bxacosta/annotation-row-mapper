@@ -32,6 +32,6 @@ public enum NamingStrategy {
     }
 
     public String fieldToColumnName(String fieldName) {
-        return converter.apply(fieldName);
+        return this.converter.apply(fieldName);
     }
 }
