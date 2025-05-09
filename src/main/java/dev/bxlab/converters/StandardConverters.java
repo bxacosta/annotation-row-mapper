@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class BasicConverters {
+public final class StandardConverters {
 
     public static final TypeConverter<Object> OBJECT = createBasicConverter(ResultSet::getObject);
     public static final TypeConverter<String> STRING = createBasicConverter(ResultSet::getString);
@@ -48,7 +48,7 @@ public final class BasicConverters {
             ConverterUtils::toZonedDateTime
     );
 
-    private BasicConverters() {
+    private StandardConverters() {
     }
 
     public static void registerDefaults(ConverterRegistry registry) {
@@ -75,14 +75,14 @@ public final class BasicConverters {
     }
 
     private static <T> TypeConverter<T> createPrimitiveConverter(ResultSetGetter<T> getter) {
-        return (resultSet, fieldConfig) -> {
-            T value = getter.get(resultSet, fieldConfig.getColumnName().orElseThrow());
+        return (resultSet, columnName, attributes) -> {
+            T value = getter.get(resultSet, columnName);
             return resultSet.wasNull() ? null : value;
         };
     }
 
     private static <T> TypeConverter<T> createBasicConverter(ResultSetGetter<T> getter) {
-        return (resultSet, fieldConfig) -> getter.get(resultSet, fieldConfig.getColumnName().orElseThrow());
+        return (resultSet, columnName, attributes) -> getter.get(resultSet, columnName);
     }
 
     private static <T, U> TypeConverter<T> createDateConverter(
@@ -90,9 +90,8 @@ public final class BasicConverters {
             Function<U, T> converter,
             BiFunction<String, String, T> formatter) {
 
-        return (resultSet, fieldConfig) -> {
-            String columnName = fieldConfig.getColumnName().orElseThrow();
-            Optional<String> format = fieldConfig.getAttribute(FieldConfig.FORMAT_ATTRIBUTE, String.class);
+        return (resultSet, columnName, attributes) -> {
+            Optional<String> format = Optional.ofNullable((String) attributes.get(FieldConfig.FORMAT_ATTRIBUTE));
 
             return format.isEmpty()
                     ? Optional.ofNullable(getter.get(resultSet, columnName)).map(converter).orElse(null)
