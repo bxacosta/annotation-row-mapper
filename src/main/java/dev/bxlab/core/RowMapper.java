@@ -18,14 +18,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class DefaultRowMapper<T> implements ResultSetMapper<T> {
-
+public class RowMapper<T> implements ResultSetMapper<T> {
     private final Class<T> targetType;
     private final MapperConfig mapperConfig;
     private final Map<Field, FieldConfig> mappings;
     private final ConverterRegistry converterRegistry;
 
-    protected DefaultRowMapper(RowMapperBuilder<T> builder) {
+    protected RowMapper(RowMapperBuilder<T> builder) {
         this.targetType = builder.getTargetType();
         this.mapperConfig = new MapperConfig(builder);
         this.converterRegistry = builder.isIncludeDefaultConverters()

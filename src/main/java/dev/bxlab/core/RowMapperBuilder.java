@@ -111,6 +111,6 @@ public class RowMapperBuilder<T> {
     }
 
     public ResultSetMapper<T> build() {
-        return new DefaultRowMapper<>(this);
+        return new RowMapper<>(this);
     }
 }
