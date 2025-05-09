@@ -1,11 +1,10 @@
 package dev.bxlab.converters;
 
-import dev.bxlab.configs.FieldConfig;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 @FunctionalInterface
 public interface TypeConverter<T> {
-    T convert(ResultSet resultSet, FieldConfig config) throws SQLException;
+    T convert(ResultSet resultSet, String columnName, Map<String, Object> attributes) throws SQLException;
 }

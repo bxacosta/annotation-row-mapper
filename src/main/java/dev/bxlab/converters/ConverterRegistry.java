@@ -20,7 +20,7 @@ public class ConverterRegistry {
 
     public static ConverterRegistry withDefaults() {
         ConverterRegistry registry = new ConverterRegistry();
-        BasicConverters.registerDefaults(registry);
+        StandardConverters.registerDefaults(registry);
         return registry;
     }
 
@@ -35,7 +35,7 @@ public class ConverterRegistry {
     public Optional<TypeConverter<?>> lockup(Class<?> type) {
         ValueUtils.requireNonNull(type, "Type can not be null");
 
-        // Check for exact match
+        // Check for the exact match
         TypeConverter<?> converter = converters.get(type);
         if (converter != null) return Optional.of(converter);
 

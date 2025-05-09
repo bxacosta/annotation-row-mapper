@@ -1,12 +1,11 @@
 package dev.bxlab.converters;
 
-import dev.bxlab.configs.FieldConfig;
-
 import java.sql.ResultSet;
+import java.util.Map;
 
 public class DefaultConverter implements TypeConverter<Void> {
     @Override
-    public Void convert(ResultSet resultSet, FieldConfig fieldConfig) {
-        return null;
+    public Void convert(ResultSet resultSet, String columnName, Map<String, Object> attributes) {
+        throw new UnsupportedOperationException("Default converter does not support conversion");
     }
 }
