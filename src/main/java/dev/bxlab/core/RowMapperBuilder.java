@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class MapperBuilder<T> {
+public class RowMapperBuilder<T> {
     private final Class<T> targetType;
     private final Map<String, FieldConfig> fieldConfigs;
     private final ConverterRegistry converterRegistry;
@@ -20,7 +20,7 @@ public class MapperBuilder<T> {
     private boolean ignoreMissingConverters;
     private boolean includeDefaultConverters;
 
-    private MapperBuilder(Class<T> targetType) {
+    private RowMapperBuilder(Class<T> targetType) {
         this.targetType = targetType;
         this.fieldConfigs = new HashMap<>();
         this.converterRegistry = new ConverterRegistry();
@@ -32,8 +32,8 @@ public class MapperBuilder<T> {
         this.includeDefaultConverters = true;
     }
 
-    public static <T> MapperBuilder<T> forType(Class<T> targetType) {
-        return new MapperBuilder<>(targetType);
+    public static <T> RowMapperBuilder<T> forType(Class<T> targetType) {
+        return new RowMapperBuilder<>(targetType);
     }
 
     public Class<T> getTargetType() {
@@ -68,44 +68,49 @@ public class MapperBuilder<T> {
         return this.includeDefaultConverters;
     }
 
-    public MapperBuilder<T> withNamingStrategy(NamingStrategy strategy) {
+    public RowMapperBuilder<T> withNamingStrategy(NamingStrategy strategy) {
         this.namingStrategy = strategy;
         return this;
     }
 
-    public MapperBuilder<T> ignoreUnknownColumns(boolean ignore) {
+    public RowMapperBuilder<T> ignoreUnknownColumns(boolean ignore) {
         this.ignoreUnknownColumns = ignore;
         return this;
     }
 
-    public MapperBuilder<T> ignoreMissingConverters(boolean ignore) {
+    public RowMapperBuilder<T> ignoreMissingConverters(boolean ignore) {
         this.ignoreMissingConverters = ignore;
         return this;
     }
 
-    public MapperBuilder<T> caseInsensitiveColumns(boolean caseInsensitive) {
+    public RowMapperBuilder<T> caseInsensitiveColumns(boolean caseInsensitive) {
         this.caseInsensitiveColumns = caseInsensitive;
         return this;
     }
 
-    public MapperBuilder<T> includeDefaultConverters(boolean include) {
+    public RowMapperBuilder<T> includeDefaultConverters(boolean include) {
         this.includeDefaultConverters = include;
         return this;
     }
 
-    public MapperBuilder<T> mapField(String fieldName, Consumer<FieldConfig.FieldConfigBuilder> configurer) {
+    public RowMapperBuilder<T> mapField(String fieldName, Consumer<FieldConfig.FieldConfigBuilder> configurer) {
         FieldConfig.FieldConfigBuilder builder = new FieldConfig.FieldConfigBuilder();
         configurer.accept(builder);
         this.fieldConfigs.put(fieldName, builder.build());
         return this;
     }
 
-    public <V> MapperBuilder<T> registerConverter(Class<V> type, TypeConverter<V> converter) {
+    public <U> RowMapperBuilder<T> registerConverter(Class<U> type, TypeConverter<U> converter) {
         this.converterRegistry.register(type, converter);
         return this;
     }
 
+    public RowMapperBuilder<T> registerConverters(Map<Class<?>, TypeConverter<?>> converters) {
+        this.converterRegistry.registerAll(converters);
+        return this;
+    }
+
     public ResultSetMapper<T> build() {
-        return new DefaultResultSetMapper<>(this);
+        return new DefaultRowMapper<>(this);
     }
 }

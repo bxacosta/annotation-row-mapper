@@ -1,12 +1,22 @@
 package dev.bxlab.converters;
 
+import dev.bxlab.utils.ValueUtils;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConverterRegistry {
 
-    private final Map<Class<?>, TypeConverter<?>> converters = new ConcurrentHashMap<>();
+    private final Map<Class<?>, TypeConverter<?>> converters;
+
+    public ConverterRegistry() {
+        this.converters = new ConcurrentHashMap<>();
+    }
+
+    public ConverterRegistry(Map<Class<?>, TypeConverter<?>> converters) {
+        this.converters = ValueUtils.requireNonNull(converters, "Converters can not be null");
+    }
 
     public static ConverterRegistry withDefaults() {
         ConverterRegistry registry = new ConverterRegistry();
@@ -18,7 +28,13 @@ public class ConverterRegistry {
         this.converters.put(type, converter);
     }
 
+    public void registerAll(Map<Class<?>, TypeConverter<?>> converters) {
+        this.converters.putAll(ValueUtils.requireNonNull(converters, "Converters can not be null"));
+    }
+
     public Optional<TypeConverter<?>> lockup(Class<?> type) {
+        ValueUtils.requireNonNull(type, "Type can not be null");
+
         // Check for exact match
         TypeConverter<?> converter = converters.get(type);
         if (converter != null) return Optional.of(converter);
