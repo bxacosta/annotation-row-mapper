@@ -44,7 +44,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
             FieldConfig fieldConfig = entry.getValue();
 
             String lookupName = fieldConfig.getColumnName()
-                    .orElseThrow(() -> new IllegalStateException("Column name can not be empty"));
+                    .orElseThrow(() -> new IllegalStateException("Column name is required"));
             Optional<String> columnName = this.findColumnName(availableColumns, lookupName);
 
             if (columnName.isEmpty()) {
@@ -53,7 +53,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
             }
 
             TypeConverter<?> converter = fieldConfig.getConverter()
-                    .orElseThrow(() -> new IllegalStateException("Converter can not be null"));
+                    .orElseThrow(() -> new IllegalStateException("Type converter is required"));
 
             Field field = entry.getKey();
             Object value = converter.convert(resultSet, columnName.get(), fieldConfig.getAttributes());

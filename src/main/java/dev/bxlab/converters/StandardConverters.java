@@ -53,7 +53,6 @@ public final class StandardConverters {
 
     public static void registerDefaults(ConverterRegistry registry) {
         registry.register(String.class, STRING);
-
         registry.register(int.class, INTEGER);
         registry.register(Integer.class, INTEGER);
         registry.register(long.class, LONG);

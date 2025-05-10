@@ -42,8 +42,4 @@ public class MapperConfig {
     public NamingStrategy getNamingStrategy() {
         return namingStrategy;
     }
-
-    public Map<String, FieldConfig> getFieldMappingConfigs() {
-        return fieldMappingConfigs;
-    }
 }
