@@ -43,8 +43,10 @@ public class RowMapper<T> implements ResultSetMapper<T> {
         for (Map.Entry<Field, FieldConfig> entry : this.mappings.entrySet()) {
             FieldConfig fieldConfig = entry.getValue();
 
+            // Column name definition
             String lookupName = fieldConfig.getColumnName()
                     .orElseThrow(() -> new IllegalStateException("Column name is required"));
+
             Optional<String> columnName = this.findColumnName(availableColumns, lookupName);
 
             if (columnName.isEmpty()) {
@@ -52,11 +54,15 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                 throw new IllegalStateException("Column not found: " + lookupName);
             }
 
-            TypeConverter<?> converter = fieldConfig.getConverter()
-                    .orElseThrow(() -> new IllegalStateException("Type converter is required"));
+            // Type converter definition
+            Optional<TypeConverter<?>> converter = fieldConfig.getConverter();
+            if (converter.isEmpty()) {
+                if (this.mapperConfig.isIgnoreUnknowTypes()) continue;
+                converter = Optional.of(StandardConverters.OBJECT);
+            }
 
             Field field = entry.getKey();
-            Object value = converter.convert(resultSet, columnName.get(), fieldConfig.getAttributes());
+            Object value = converter.get().convert(resultSet, columnName.get(), fieldConfig.getAttributes());
             if (value != null || ReflectionUtils.isPrimitiveType(field)) {
                 ExceptionHandler.map(() -> ReflectionUtils.setFieldValue(targetInstance, field, value),
                         (e) -> new IllegalStateException("Error setting value for field: " + field.getName(), e));
@@ -104,7 +110,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                 TypeConverter<?> converter = mapperFieldConfig.flatMap(FieldConfig::getConverter)
                         .or(annotationFieldConfig::getConverter)
                         .or(() -> this.converterRegistry.lockup(field.getType()))
-                        .orElse(StandardConverters.OBJECT);
+                        .orElse(null);
 
                 Map<String, Object> attributes = new HashMap<>(annotationFieldConfig.getAttributes());
                 mapperFieldConfig.ifPresent(fieldConfig -> attributes.putAll(fieldConfig.getAttributes()));

@@ -15,9 +15,9 @@ public class RowMapperBuilder<T> {
     private final ConverterRegistry converterRegistry;
 
     private NamingStrategy namingStrategy;
+    private boolean ignoreUnknowTypes;
     private boolean ignoreUnknownColumns;
     private boolean caseInsensitiveColumns;
-    private boolean ignoreMissingConverters;
     private boolean includeDefaultConverters;
 
     private RowMapperBuilder(Class<T> targetType) {
@@ -26,8 +26,8 @@ public class RowMapperBuilder<T> {
         this.converterRegistry = new ConverterRegistry();
 
         this.namingStrategy = NamingStrategy.AS_IS;
+        this.ignoreUnknowTypes = true;
         this.ignoreUnknownColumns = true;
-        this.ignoreMissingConverters = true;
         this.caseInsensitiveColumns = true;
         this.includeDefaultConverters = true;
     }
@@ -52,16 +52,16 @@ public class RowMapperBuilder<T> {
         return this.namingStrategy;
     }
 
+    public boolean isIgnoreUnknowTypes() {
+        return this.ignoreUnknowTypes;
+    }
+
     public boolean isIgnoreUnknownColumns() {
         return this.ignoreUnknownColumns;
     }
 
     public boolean isCaseInsensitiveColumns() {
         return this.caseInsensitiveColumns;
-    }
-
-    public boolean isIgnoreMissingConverters() {
-        return this.ignoreMissingConverters;
     }
 
     public boolean isIncludeDefaultConverters() {
@@ -73,13 +73,13 @@ public class RowMapperBuilder<T> {
         return this;
     }
 
-    public RowMapperBuilder<T> ignoreUnknownColumns(boolean ignore) {
-        this.ignoreUnknownColumns = ignore;
+    public RowMapperBuilder<T> ignoreUnknownTypes(boolean ignore) {
+        this.ignoreUnknowTypes = ignore;
         return this;
     }
 
-    public RowMapperBuilder<T> ignoreMissingConverters(boolean ignore) {
-        this.ignoreMissingConverters = ignore;
+    public RowMapperBuilder<T> ignoreUnknownColumns(boolean ignore) {
+        this.ignoreUnknownColumns = ignore;
         return this;
     }
 

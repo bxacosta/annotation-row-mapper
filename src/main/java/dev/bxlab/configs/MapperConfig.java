@@ -8,15 +8,15 @@ import java.util.Optional;
 
 public class MapperConfig {
 
+    private final boolean ignoreUnknowTypes;
     private final boolean ignoreUnknownColumns;
-    private final boolean ignoreMissingConverter;
     private final boolean caseInsensitiveColumns;
     private final NamingStrategy namingStrategy;
     private final Map<String, FieldConfig> fieldMappingConfigs;
 
     public MapperConfig(RowMapperBuilder<?> builder) {
+        this.ignoreUnknowTypes = builder.isIgnoreUnknowTypes();
         this.ignoreUnknownColumns = builder.isIgnoreUnknownColumns();
-        this.ignoreMissingConverter = builder.isIgnoreMissingConverters();
         this.caseInsensitiveColumns = builder.isCaseInsensitiveColumns();
         this.namingStrategy = ValueUtils.requireNonNull(builder.getNamingStrategy(), "Naming strategy can not be null");
         this.fieldMappingConfigs = ValueUtils.requireNonNull(builder.getFieldConfigs(), "Field mapping configurations can not be null");
@@ -27,12 +27,12 @@ public class MapperConfig {
         return Optional.ofNullable(this.fieldMappingConfigs.get(fieldName));
     }
 
-    public boolean isIgnoreUnknownColumns() {
-        return ignoreUnknownColumns;
+    public boolean isIgnoreUnknowTypes() {
+        return ignoreUnknowTypes;
     }
 
-    public boolean isIgnoreMissingConverter() {
-        return ignoreMissingConverter;
+    public boolean isIgnoreUnknownColumns() {
+        return ignoreUnknownColumns;
     }
 
     public boolean isCaseInsensitiveColumns() {
