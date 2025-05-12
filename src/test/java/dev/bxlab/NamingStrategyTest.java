@@ -1,4 +1,4 @@
-package dev.bxlab.utils;
+package dev.bxlab;
 
 import dev.bxlab.configs.NamingStrategy;
 import org.junit.jupiter.api.DisplayName;

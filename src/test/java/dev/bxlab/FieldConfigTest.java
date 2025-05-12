@@ -1,9 +1,10 @@
-package dev.bxlab.utils;
+package dev.bxlab;
 
 import dev.bxlab.configs.FieldConfig;
 import dev.bxlab.converters.DefaultConverter;
 import dev.bxlab.converters.TypeConverter;
 import dev.bxlab.core.ColumnMapping;
+import dev.bxlab.utils.ReflectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
