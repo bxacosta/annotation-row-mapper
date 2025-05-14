@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -46,6 +47,11 @@ public final class StandardConverters {
             ResultSet::getTimestamp,
             timestamp -> timestamp.toInstant().atZone(ZoneId.systemDefault()),
             ConverterUtils::toZonedDateTime
+    );
+    private static final TypeConverter<OffsetDateTime> OFFSET_DATE_TIME = createDateConverter(
+            ResultSet::getTimestamp,
+            timestamp -> timestamp.toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime(),
+            ConverterUtils::toOffsetDateTime
     );
 
     private StandardConverters() {

@@ -6,6 +6,7 @@ import dev.bxlab.converters.TypeConverter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,10 @@ public final class ConverterUtils {
 
     public static ZonedDateTime toZonedDateTime(String value, String format) {
         return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(format));
+    }
+
+    public static OffsetDateTime toOffsetDateTime(String value, String format) {
+        return OffsetDateTime.parse(value, DateTimeFormatter.ofPattern(format));
     }
 
     public static Date toDate(String value, String format) {
