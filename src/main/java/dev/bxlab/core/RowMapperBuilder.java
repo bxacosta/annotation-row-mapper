@@ -2,8 +2,8 @@ package dev.bxlab.core;
 
 import dev.bxlab.configs.FieldConfig;
 import dev.bxlab.configs.NamingStrategy;
-import dev.bxlab.converters.ConverterRegistry;
 import dev.bxlab.converters.TypeConverter;
+import dev.bxlab.utils.ValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class RowMapperBuilder<T> {
     private final Class<T> targetType;
     private final Map<String, FieldConfig> fieldConfigs;
-    private final ConverterRegistry converterRegistry;
+    private final Map<Class<?>, TypeConverter<?>> converters;
 
     private NamingStrategy namingStrategy;
     private boolean ignoreUnknowTypes;
@@ -23,7 +23,7 @@ public class RowMapperBuilder<T> {
     private RowMapperBuilder(Class<T> targetType) {
         this.targetType = targetType;
         this.fieldConfigs = new HashMap<>();
-        this.converterRegistry = new ConverterRegistry();
+        this.converters = new HashMap<>();
 
         this.namingStrategy = NamingStrategy.AS_IS;
         this.ignoreUnknowTypes = true;
@@ -44,8 +44,8 @@ public class RowMapperBuilder<T> {
         return this.fieldConfigs;
     }
 
-    public ConverterRegistry getConverterRegistry() {
-        return this.converterRegistry;
+    public Map<Class<?>, TypeConverter<?>> getConverters() {
+        return this.converters;
     }
 
     public NamingStrategy getNamingStrategy() {
@@ -101,16 +101,24 @@ public class RowMapperBuilder<T> {
     }
 
     public <U> RowMapperBuilder<T> registerConverter(Class<U> type, TypeConverter<U> converter) {
-        this.converterRegistry.register(type, converter);
-        return this;
-    }
-
-    public RowMapperBuilder<T> registerConverters(Map<Class<?>, TypeConverter<?>> converters) {
-        this.converterRegistry.registerAll(converters);
+        this.converters.put(type, converter);
         return this;
     }
 
     public ResultSetMapper<T> build() {
+        ValueUtils.requireNonNull(this.targetType, "Target type can not be null");
+        ValueUtils.requireNonNull(this.namingStrategy, "Naming strategy can not be null");
+
+        this.fieldConfigs.forEach((key, value) -> {
+            ValueUtils.requireNonEmpty(key, "Field name can not be empty");
+            ValueUtils.requireNonNull(value, "Field config value can not be null");
+        });
+
+        this.converters.forEach((key, value) -> {
+            ValueUtils.requireNonNull(key, "Converter type can not be null");
+            ValueUtils.requireNonNull(value, "Converter value can not be null");
+        });
+
         return new RowMapper<>(this);
     }
 }

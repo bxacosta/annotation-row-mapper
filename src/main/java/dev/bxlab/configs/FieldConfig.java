@@ -87,7 +87,7 @@ public class FieldConfig {
         }
 
         public FieldConfigBuilder withAttributes(Map<String, Object> attributes) {
-            this.attributes.putAll(attributes);
+            this.attributes.putAll(ValueUtils.requireNonNull(attributes, "Attributes can not be null"));
             return this;
         }
 
@@ -97,8 +97,8 @@ public class FieldConfig {
             ValueUtils.requireNonNull(this.attributes, "Attributes can not be null");
 
             this.attributes.forEach((key, value) -> {
-                ValueUtils.requireNonEmpty(key, "Attribute key can not be empty");
-                ValueUtils.requireNonEmpty(value, "Attribute value can not be empty");
+                ValueUtils.requireNonEmpty(key, "Attribute name can not be empty");
+                ValueUtils.requireNonNull(value, "Attribute value can not be null");
             });
 
             return new FieldConfig(this);

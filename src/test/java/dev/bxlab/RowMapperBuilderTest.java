@@ -1,7 +1,6 @@
 package dev.bxlab;
 
 import dev.bxlab.configs.NamingStrategy;
-import dev.bxlab.converters.ConverterRegistry;
 import dev.bxlab.converters.TypeConverter;
 import dev.bxlab.core.ResultSetMapper;
 import dev.bxlab.core.RowMapper;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,7 +57,7 @@ public class RowMapperBuilderTest {
         assertTrue(builder.isIncludeDefaultConverters());
         assertNotNull(builder.getFieldConfigs());
         assertTrue(builder.getFieldConfigs().isEmpty());
-        assertNotNull(builder.getConverterRegistry());
+        assertNotNull(builder.getConverters());
     }
 
     @Test
@@ -103,10 +104,10 @@ public class RowMapperBuilderTest {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class)
                 .registerConverter(String.class, mockStringConverter);
 
-        ConverterRegistry registry = builder.getConverterRegistry();
+        Map<Class<?>, TypeConverter<?>> registry = builder.getConverters();
         assertNotNull(registry);
-        assertTrue(registry.lockup(String.class).isPresent());
-        assertSame(mockStringConverter, registry.lockup(String.class).get());
+        assertNotNull(registry.get(String.class));
+        assertSame(mockStringConverter, registry.get(String.class));
     }
 
     private static class TestDTO {

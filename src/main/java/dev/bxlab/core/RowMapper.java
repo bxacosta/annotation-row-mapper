@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,9 +26,14 @@ public class RowMapper<T> implements ResultSetMapper<T> {
     protected RowMapper(RowMapperBuilder<T> builder) {
         this.targetType = builder.getTargetType();
         this.mapperConfig = new MapperConfig(builder);
-        this.converterRegistry = builder.isIncludeDefaultConverters()
+
+        ConverterRegistry registry = builder.isIncludeDefaultConverters()
                 ? ConverterRegistry.withDefaults()
-                : new ConverterRegistry(builder.getConverterRegistry().getConverters());
+                : new ConverterRegistry();
+
+        registry.registerAll(builder.getConverters());
+
+        this.converterRegistry = registry;
 
         this.mappings = new HashMap<>();
         this.initializeMappings();
@@ -91,7 +97,9 @@ public class RowMapper<T> implements ResultSetMapper<T> {
     }
 
     private void initializeMappings() {
-        for (Field field : ReflectionUtils.getAllFields(this.targetType)) {
+        List<Field> fields = ReflectionUtils.getAllFields(this.targetType);
+
+        for (Field field : fields) {
             ColumnMapping mappingAnnotation = field.getAnnotation(ColumnMapping.class);
 
             if (mappingAnnotation == null) continue;
@@ -106,7 +114,8 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                         .or(annotationFieldConfig::getColumnName)
                         .orElse(this.mapperConfig.getNamingStrategy().fieldToColumnName(field.getName()));
 
-                TypeConverter<?> converter = mapperFieldConfig.flatMap(FieldConfig::getConverter)
+                TypeConverter<?> converter = mapperFieldConfig
+                        .flatMap(FieldConfig::getConverter)
                         .or(annotationFieldConfig::getConverter)
                         .or(() -> this.converterRegistry.lockup(field.getType()))
                         .orElse(null);
