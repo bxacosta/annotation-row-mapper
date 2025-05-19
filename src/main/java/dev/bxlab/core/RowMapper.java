@@ -35,9 +35,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
 
     @Override
     public T map(ResultSet resultSet) throws SQLException {
-        T targetInstance = ExceptionHandler.map(() -> ReflectionUtils.createInstance(this.targetType),
-                (e) -> new IllegalStateException("Error mapping to: " + this.targetType.getSimpleName(), e));
-
+        Map<Field, Object> fieldValues = new HashMap<>();
         Map<String, String> availableColumns = this.getAvailableColumns(resultSet);
 
         for (Map.Entry<Field, FieldConfig> entry : this.mappings.entrySet()) {
@@ -64,11 +62,12 @@ public class RowMapper<T> implements ResultSetMapper<T> {
             Field field = entry.getKey();
             Object value = converter.get().convert(resultSet, columnName.get(), fieldConfig.getAttributes());
             if (value != null || ReflectionUtils.isPrimitiveType(field)) {
-                ExceptionHandler.map(() -> ReflectionUtils.setFieldValue(targetInstance, field, value),
-                        (e) -> new IllegalStateException("Error setting value for field: " + field.getName(), e));
+                fieldValues.put(field, value);
             }
         }
-        return targetInstance;
+
+        return ExceptionHandler.map(() -> ReflectionUtils.createInstanceWithValues(this.targetType, fieldValues),
+                (e) -> new IllegalStateException("Error mapping to: " + this.targetType.getSimpleName(), e));
     }
 
     private Map<String, String> getAvailableColumns(ResultSet rs) throws SQLException {
