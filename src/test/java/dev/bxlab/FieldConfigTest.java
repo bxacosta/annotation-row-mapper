@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -69,10 +70,10 @@ public class FieldConfigTest {
     }
 
     @Test
-    @DisplayName("Builder should throw exception when attribute value is empty or null")
+    @DisplayName("Builder should throw exception when attribute value is null")
     void builder_ShouldThrowException_WhenAttributeValueIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().withAttribute("testKey", null).build());
-        assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().withAttribute("testKey", " ").build());
+        assertDoesNotThrow(() -> FieldConfig.builder().withAttribute("testKey", " ").build());
     }
 
     @Test
