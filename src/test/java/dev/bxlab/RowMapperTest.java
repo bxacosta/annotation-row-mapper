@@ -433,12 +433,9 @@ class RowMapperTest {
         }
     }
 
+    @SuppressWarnings("unused")
     public static class UserWithoutDefaultConstructor {
-        @ColumnMapping
-        private Integer id;
-
         public UserWithoutDefaultConstructor(Integer id) {
-            this.id = id;
         }
     }
 }
