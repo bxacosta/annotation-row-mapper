@@ -3,11 +3,10 @@ package dev.bxlab.utils;
 import dev.bxlab.converters.DefaultConverter;
 import dev.bxlab.converters.TypeConverter;
 
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -33,8 +32,9 @@ public final class ConverterUtils {
     }
 
     public static Date toDate(String value, String format) {
-        Instant instant = toLocalDateTime(value, format).atZone(ZoneId.systemDefault()).toInstant();
-        return Date.from(instant);
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return ExceptionHandler.map(() -> sdf.parse(value),
+                e -> new IllegalStateException("Cannot parse date '" + value + "' with format '" + format + "'", e));
     }
 
     public static boolean isDefaultConverter(TypeConverter<?> converter) {
