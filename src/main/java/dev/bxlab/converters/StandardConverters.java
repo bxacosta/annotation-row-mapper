@@ -76,6 +76,7 @@ public final class StandardConverters {
         registry.register(LocalDate.class, LOCAL_DATE);
         registry.register(LocalDateTime.class, LOCAL_DATE_TIME);
         registry.register(ZonedDateTime.class, ZONED_DATE_TIME);
+        registry.register(OffsetDateTime.class, OFFSET_DATE_TIME);
         registry.register(BigDecimal.class, BIG_DECIMAL);
     }
 

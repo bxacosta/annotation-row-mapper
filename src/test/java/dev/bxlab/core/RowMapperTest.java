@@ -1,5 +1,7 @@
 package dev.bxlab.core;
 
+import dev.bxlab.configs.FieldConfig;
+import dev.bxlab.configs.NamingStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -127,8 +131,8 @@ class RowMapperTest {
 
         UserWithDate user = mapper.map(resultSet);
         assertNotNull(user);
-        assertEquals(4, user.getId());
-        assertEquals(LocalDate.of(1990, 1, 15), user.getBirthDate());
+        assertEquals(4, user.id());
+        assertEquals(LocalDate.of(1990, 1, 15), user.birthDate());
     }
 
     @Test
@@ -143,9 +147,7 @@ class RowMapperTest {
         ResultSetMapper<BasicUser> mapperStrict = RowMapperBuilder.forType(BasicUser.class)
                 .ignoreUnknownColumns(false)
                 .build();
-        Exception exception = assertThrows(IllegalStateException.class, () -> {
-            mapperStrict.map(resultSet);
-        });
+        Exception exception = assertThrows(IllegalStateException.class, () -> mapperStrict.map(resultSet));
         assertTrue(exception.getMessage().contains("Column not found"));
 
 
@@ -157,55 +159,129 @@ class RowMapperTest {
         assertEquals(5, user.id());
         assertNull(user.name());
     }
-//
-//    @Test
-//    void mapWithNamingStrategy() throws SQLException {
-//        // Configurar el ResultSet mock
-//        when(metaData.getColumnCount()).thenReturn(2);
-//        when(metaData.getColumnLabel(1)).thenReturn("user_id");
-//        when(metaData.getColumnLabel(2)).thenReturn("user_name");
-//
-//        when(resultSet.getInt("user_id")).thenReturn(6);
-//        when(resultSet.getString("user_name")).thenReturn("Strategy User");
-//        when(resultSet.wasNull()).thenReturn(false, false);
-//
-//        // Crear el mapper con estrategia de nombres SNAKE_CASE
-//        ResultSetMapper<StrategyUser> mapper = RowMapperBuilder.forType(StrategyUser.class)
-//                .withNamingStrategy(NamingStrategy.SNAKE_CASE)
-//                .build();
-//
-//        // Ejecutar el mapeo
-//        StrategyUser user = mapper.map(resultSet);
-//
-//        // Verificar resultados
-//        assertNotNull(user);
-//        assertEquals(6, user.getUserId());
-//        assertEquals("Strategy User", user.getUserName());
-//    }
 
-    // Clases de prueba
-//    public static class BasicUser {
-//        @ColumnMapping("ID")
-//        private Integer id;
-//
-//        @ColumnMapping("NAME")
-//        private String name;
-//
-//        @ColumnMapping("ACTIVE")
-//        private boolean active;
-//
-//        public Integer getId() {
-//            return id;
-//        }
-//
-//        public String getName() {
-//            return name;
-//        }
-//
-//        public boolean isActive() {
-//            return active;
-//        }
-//    }
+    @Test
+    void mapWithNamingStrategy() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("user_id");
+        when(metaData.getColumnLabel(2)).thenReturn("user_name");
+
+        when(resultSet.getInt("user_id")).thenReturn(6);
+        when(resultSet.getString("user_name")).thenReturn("Strategy User");
+        when(resultSet.wasNull()).thenReturn(false, false);
+
+        ResultSetMapper<StrategyUser> mapper = RowMapperBuilder.forType(StrategyUser.class)
+                .withNamingStrategy(NamingStrategy.SNAKE_CASE)
+                .build();
+
+        StrategyUser user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertEquals(6, user.userId());
+        assertEquals("Strategy User", user.userName());
+    }
+
+    @Test
+    void mapWithFormatAttribute() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+        when(metaData.getColumnLabel(2)).thenReturn("CREATED_AT");
+
+        when(resultSet.getInt("ID")).thenReturn(1);
+        when(resultSet.getString("CREATED_AT")).thenReturn("2023-05-15");
+
+        ResultSetMapper<UserWithFormattedDate> mapper = RowMapperBuilder
+                .forType(UserWithFormattedDate.class)
+                .registerConverter(Date.class, (resultSet, columnName, attributes) -> {
+                    String stringDate = resultSet.getString(columnName);
+                    if (stringDate == null) return null;
+
+                    try {
+                        String format = (String) attributes.getOrDefault(FieldConfig.FORMAT_ATTRIBUTE, "yyyy-MM-dd");
+                        SimpleDateFormat sdf = new SimpleDateFormat(format);
+                        return sdf.parse(stringDate);
+                    } catch (Exception e) {
+                        throw new SQLException("Error parsing date: " + stringDate, e);
+                    }
+                })
+                .build();
+
+        UserWithFormattedDate user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertEquals(1, user.id());
+        assertNotNull(user.createdAt());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        assertEquals("2023-05-15", sdf.format(user.createdAt()));
+    }
+
+    @Test
+    void mapWithCustomAttributes() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+        when(metaData.getColumnLabel(2)).thenReturn("SCORE");
+
+        when(resultSet.getInt("ID")).thenReturn(2);
+        when(resultSet.getDouble("SCORE")).thenReturn(75.5);
+
+        ResultSetMapper<UserWithScore> mapper = RowMapperBuilder
+                .forType(UserWithScore.class)
+                .mapField("score", config -> config
+                        .withAttribute("minValue", 0.0)
+                        .withAttribute("maxValue", 100.0)
+                        .withConverter((resultSet, columnName, attributes) -> {
+                            double value = resultSet.getDouble(columnName);
+                            if (resultSet.wasNull()) return null;
+
+                            Double minValue = (Double) attributes.get("minValue");
+                            Double maxValue = (Double) attributes.get("maxValue");
+
+                            if (minValue != null && value < minValue) {
+                                throw new IllegalArgumentException("Value below minimum: " + value + " < " + minValue);
+                            }
+
+                            if (maxValue != null && value > maxValue) {
+                                throw new IllegalArgumentException("Value exceeds maximum: " + value + " > " + maxValue);
+                            }
+
+                            return value;
+                        })
+                )
+                .build();
+
+        UserWithScore user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertEquals(2, user.id());
+        assertEquals(75.5, user.score());
+
+        when(resultSet.getDouble("SCORE")).thenReturn(150.0);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> mapper.map(resultSet));
+        assertTrue(exception.getMessage().contains("Value exceeds maximum"));
+    }
+
+    @Test
+    void mapWithProgrammaticFieldConfig() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("USER_CODE");
+        when(metaData.getColumnLabel(2)).thenReturn("USER_NAME");
+
+        when(resultSet.getInt("USER_CODE")).thenReturn(2);
+        when(resultSet.getString("USER_NAME")).thenReturn("Programmatic User");
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder.forType(BasicUser.class)
+                .mapField("id", config -> config.toColumn("USER_CODE"))
+                .mapField("name", config -> config.toColumn("USER_NAME"))
+                .build();
+
+        BasicUser user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertEquals(2, user.id());
+        assertEquals("Programmatic User", user.name());
+    }
+
 
     public record BasicUser(
             @ColumnMapping Integer id,
@@ -221,35 +297,27 @@ class RowMapperTest {
     ) {
     }
 
-    public static class UserWithDate {
-        @ColumnMapping("ID")
-        private Integer id;
-
-        @ColumnMapping("BIRTH_DATE")
-        private LocalDate birthDate;
-
-        public Integer getId() {
-            return id;
-        }
-
-        public LocalDate getBirthDate() {
-            return birthDate;
-        }
+    public record UserWithDate(
+            @ColumnMapping("ID") Integer id,
+            @ColumnMapping("BIRTH_DATE") LocalDate birthDate
+    ) {
     }
 
-    public static class StrategyUser {
-        @ColumnMapping
-        private Integer userId;
+    public record StrategyUser(
+            @ColumnMapping Integer userId,
+            @ColumnMapping String userName
+    ) {
+    }
 
-        @ColumnMapping
-        private String userName;
+    public record UserWithFormattedDate(
+            @ColumnMapping("ID") Integer id,
+            @ColumnMapping(value = "CREATED_AT", format = "yyyy-MM-dd") Date createdAt
+    ) {
+    }
 
-        public Integer getUserId() {
-            return userId;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
+    public record UserWithScore(
+            @ColumnMapping("ID") Integer id,
+            @ColumnMapping("SCORE") Double score
+    ) {
     }
 }
