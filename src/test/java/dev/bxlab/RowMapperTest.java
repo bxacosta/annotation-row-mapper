@@ -1,7 +1,9 @@
-package dev.bxlab.core;
+package dev.bxlab;
 
-import dev.bxlab.configs.FieldConfig;
 import dev.bxlab.configs.NamingStrategy;
+import dev.bxlab.core.ColumnMapping;
+import dev.bxlab.core.ResultSetMapper;
+import dev.bxlab.core.RowMapperBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -182,6 +184,19 @@ class RowMapperTest {
     }
 
     @Test
+    void mapWithInvalidColumnName() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(1);
+        when(metaData.getColumnLabel(1)).thenReturn("DIFFERENT_ID");
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder.forType(BasicUser.class)
+                .ignoreUnknownColumns(false)
+                .build();
+
+        Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
+        assertTrue(exception.getMessage().contains("Column not found"));
+    }
+
+    @Test
     void mapWithFormatAttribute() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
@@ -192,18 +207,6 @@ class RowMapperTest {
 
         ResultSetMapper<UserWithFormattedDate> mapper = RowMapperBuilder
                 .forType(UserWithFormattedDate.class)
-                .registerConverter(Date.class, (resultSet, columnName, attributes) -> {
-                    String stringDate = resultSet.getString(columnName);
-                    if (stringDate == null) return null;
-
-                    try {
-                        String format = (String) attributes.getOrDefault(FieldConfig.FORMAT_ATTRIBUTE, "yyyy-MM-dd");
-                        SimpleDateFormat sdf = new SimpleDateFormat(format);
-                        return sdf.parse(stringDate);
-                    } catch (Exception e) {
-                        throw new SQLException("Error parsing date: " + stringDate, e);
-                    }
-                })
                 .build();
 
         UserWithFormattedDate user = mapper.map(resultSet);
@@ -262,6 +265,55 @@ class RowMapperTest {
     }
 
     @Test
+    void mapWithCustomConverters() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+        when(metaData.getColumnLabel(2)).thenReturn("ROLE");
+
+        when(resultSet.getString("ROLE")).thenReturn("ADMIN");
+
+        ResultSetMapper<UserWithCustomProperty> mapper = RowMapperBuilder
+                .forType(UserWithCustomProperty.class)
+                .includeDefaultConverters(false)
+                .registerConverter(UserWithCustomProperty.Role.class, (resultSet, columnName, attributes) -> {
+                    String role = resultSet.getString(columnName);
+                    return role != null ? UserWithCustomProperty.Role.valueOf(role.toUpperCase()) : null;
+                })
+                .build();
+
+        UserWithCustomProperty user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertNull(user.id());
+        assertEquals(UserWithCustomProperty.Role.ADMIN, user.role());
+    }
+
+    @Test
+    void mapWithFallbackConverter() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(3);
+        when(metaData.getColumnLabel(1)).thenReturn("id");
+        when(metaData.getColumnLabel(2)).thenReturn("name");
+        when(metaData.getColumnLabel(3)).thenReturn("active");
+
+        when(resultSet.getObject("id")).thenReturn(1);
+        when(resultSet.getObject("name")).thenReturn("Test User");
+        when(resultSet.getObject("active")).thenReturn(true);
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder
+                .forType(BasicUser.class)
+                .includeDefaultConverters(false)
+                .ignoreUnknownTypes(false)
+                .build();
+
+        BasicUser user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertEquals(1, user.id());
+        assertEquals("Test User", user.name());
+        assertTrue(user.active());
+    }
+
+    @Test
     void mapWithProgrammaticFieldConfig() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("USER_CODE");
@@ -280,6 +332,57 @@ class RowMapperTest {
         assertNotNull(user);
         assertEquals(2, user.id());
         assertEquals("Programmatic User", user.name());
+    }
+
+    @Test
+    void mapWithNullValues() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(3);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+        when(metaData.getColumnLabel(2)).thenReturn("NAME");
+        when(metaData.getColumnLabel(3)).thenReturn("ACTIVE");
+
+        when(resultSet.getInt("ID")).thenReturn(0);
+        when(resultSet.getString("NAME")).thenReturn(null);
+        when(resultSet.getBoolean("ACTIVE")).thenReturn(true);
+        when(resultSet.wasNull()).thenReturn(true, true);
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder.forType(BasicUser.class).build();
+
+        BasicUser user = mapper.map(resultSet);
+
+        assertNotNull(user);
+        assertNull(user.id());
+        assertNull(user.name());
+        assertFalse(user.active());
+    }
+
+    @Test
+    void mapWithFailingConverter() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(2);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+        when(metaData.getColumnLabel(2)).thenReturn("NAME");
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder.forType(BasicUser.class)
+                .registerConverter(Integer.class, (resultSet, columnName, attributes) -> {
+                    throw new SQLException("Failed to convert column " + columnName + " to Integer");
+                })
+                .build();
+
+        Exception exception = assertThrows(SQLException.class, () -> mapper.map(resultSet));
+        assertTrue(exception.getMessage().contains("Failed to convert column"));
+    }
+
+    @Test
+    void mapWithNoDefaultConstructor() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(1);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+
+        ResultSetMapper<UserWithoutDefaultConstructor> mapper = RowMapperBuilder
+                .forType(UserWithoutDefaultConstructor.class)
+                .build();
+
+        Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
+        assertTrue(exception.getMessage().contains("Error mapping to"));
     }
 
 
@@ -319,5 +422,23 @@ class RowMapperTest {
             @ColumnMapping("ID") Integer id,
             @ColumnMapping("SCORE") Double score
     ) {
+    }
+
+    public record UserWithCustomProperty(
+            @ColumnMapping Integer id,
+            @ColumnMapping Role role
+    ) {
+        public enum Role {
+            ADMIN, USER
+        }
+    }
+
+    public static class UserWithoutDefaultConstructor {
+        @ColumnMapping
+        private Integer id;
+
+        public UserWithoutDefaultConstructor(Integer id) {
+            this.id = id;
+        }
     }
 }
