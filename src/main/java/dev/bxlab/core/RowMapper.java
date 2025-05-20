@@ -67,7 +67,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
 
             Field field = entry.getKey();
             Object value = converter.get().convert(resultSet, columnName.get(), fieldConfig.getAttributes());
-            if (value != null || ReflectionUtils.isPrimitiveType(field)) {
+            if (value != null || !ReflectionUtils.isPrimitiveType(field)) {
                 fieldValues.put(field, value);
             }
         }
