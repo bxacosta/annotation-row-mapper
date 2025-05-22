@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -383,6 +384,39 @@ class RowMapperTest {
 
         Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
         assertTrue(exception.getMessage().contains("Error mapping to"));
+    }
+
+    @Test
+    void mapAllBasicTypes() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(3);
+        when(metaData.getColumnLabel(1)).thenReturn("id");
+        when(metaData.getColumnLabel(2)).thenReturn("name");
+        when(metaData.getColumnLabel(3)).thenReturn("active");
+
+        when(resultSet.next()).thenReturn(true, true, true, false);
+
+        when(resultSet.getInt("id")).thenReturn(1, 2, 3);
+        when(resultSet.getString("name")).thenReturn("User One", "User Two", "User Three");
+        when(resultSet.getBoolean("active")).thenReturn(true, false, true);
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder.forType(BasicUser.class).build();
+
+        List<BasicUser> users = mapper.mapAll(resultSet);
+
+        assertNotNull(users);
+        assertEquals(3, users.size());
+
+        assertEquals(1, users.getFirst().id());
+        assertEquals("User One", users.get(0).name());
+        assertTrue(users.get(0).active());
+
+        assertEquals(2, users.get(1).id());
+        assertEquals("User Two", users.get(1).name());
+        assertFalse(users.get(1).active());
+
+        assertEquals(3, users.get(2).id());
+        assertEquals("User Three", users.get(2).name());
+        assertTrue(users.get(2).active());
     }
 
 
