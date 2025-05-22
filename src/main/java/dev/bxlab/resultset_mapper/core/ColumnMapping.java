@@ -1,7 +1,7 @@
-package dev.bxlab.core;
+package  dev.bxlab.resultset_mapper.core;
 
-import dev.bxlab.converters.DefaultConverter;
-import dev.bxlab.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

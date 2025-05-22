@@ -1,8 +1,8 @@
-package dev.bxlab;
+package  dev.bxlab.resultset_mapper;
 
-import dev.bxlab.configs.FieldConfig;
-import dev.bxlab.converters.ConverterRegistry;
-import dev.bxlab.converters.StandardConverters;
+import  dev.bxlab.resultset_mapper.configs.FieldConfig;
+import  dev.bxlab.resultset_mapper.converters.ConverterRegistry;
+import  dev.bxlab.resultset_mapper.converters.StandardConverters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

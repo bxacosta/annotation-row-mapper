@@ -1,4 +1,4 @@
-package dev.bxlab.utils;
+package  dev.bxlab.resultset_mapper.utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

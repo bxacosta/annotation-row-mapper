@@ -1,12 +1,12 @@
-package dev.bxlab.core;
+package  dev.bxlab.resultset_mapper.core;
 
-import dev.bxlab.configs.FieldConfig;
-import dev.bxlab.configs.MapperConfig;
-import dev.bxlab.converters.ConverterRegistry;
-import dev.bxlab.converters.StandardConverters;
-import dev.bxlab.converters.TypeConverter;
-import dev.bxlab.utils.ExceptionHandler;
-import dev.bxlab.utils.ReflectionUtils;
+import  dev.bxlab.resultset_mapper.configs.FieldConfig;
+import  dev.bxlab.resultset_mapper.configs.MapperConfig;
+import  dev.bxlab.resultset_mapper.converters.ConverterRegistry;
+import  dev.bxlab.resultset_mapper.converters.StandardConverters;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.utils.ExceptionHandler;
+import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;

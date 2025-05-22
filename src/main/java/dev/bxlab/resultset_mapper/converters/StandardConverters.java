@@ -1,7 +1,7 @@
-package dev.bxlab.converters;
+package  dev.bxlab.resultset_mapper.converters;
 
-import dev.bxlab.configs.FieldConfig;
-import dev.bxlab.utils.ConverterUtils;
+import  dev.bxlab.resultset_mapper.configs.FieldConfig;
+import  dev.bxlab.resultset_mapper.utils.ConverterUtils;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;

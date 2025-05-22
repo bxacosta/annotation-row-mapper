@@ -1,7 +1,7 @@
-package dev.bxlab.utils;
+package  dev.bxlab.resultset_mapper.utils;
 
-import dev.bxlab.converters.DefaultConverter;
-import dev.bxlab.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;

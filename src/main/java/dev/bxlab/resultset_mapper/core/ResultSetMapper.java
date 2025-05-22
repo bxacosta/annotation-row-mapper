@@ -1,4 +1,4 @@
-package dev.bxlab.core;
+package  dev.bxlab.resultset_mapper.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

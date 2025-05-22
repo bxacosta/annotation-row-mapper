@@ -1,4 +1,4 @@
-package dev.bxlab.converters;
+package  dev.bxlab.resultset_mapper.converters;
 
 import java.sql.ResultSet;
 import java.util.Map;

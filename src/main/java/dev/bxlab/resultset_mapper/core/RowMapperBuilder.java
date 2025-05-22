@@ -1,9 +1,9 @@
-package dev.bxlab.core;
+package  dev.bxlab.resultset_mapper.core;
 
-import dev.bxlab.configs.FieldConfig;
-import dev.bxlab.configs.NamingStrategy;
-import dev.bxlab.converters.TypeConverter;
-import dev.bxlab.utils.ValueUtils;
+import  dev.bxlab.resultset_mapper.configs.FieldConfig;
+import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.utils.ValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +105,7 @@ public class RowMapperBuilder<T> {
         return this;
     }
 
-    public ResultSetMapper<T> build() {
+    public  dev.bxlab.resultset_mapper.core.ResultSetMapper<T> build() {
         ValueUtils.requireNonNull(this.targetType, "Target type can not be null");
         ValueUtils.requireNonNull(this.namingStrategy, "Naming strategy can not be null");
 
@@ -119,6 +119,6 @@ public class RowMapperBuilder<T> {
             ValueUtils.requireNonNull(value, "Converter value can not be null");
         });
 
-        return new RowMapper<>(this);
+        return new  dev.bxlab.resultset_mapper.core.RowMapper<>(this);
     }
 }

@@ -1,10 +1,10 @@
-package dev.bxlab.configs;
+package  dev.bxlab.resultset_mapper.configs;
 
-import dev.bxlab.converters.TypeConverter;
-import dev.bxlab.core.ColumnMapping;
-import dev.bxlab.utils.ConverterUtils;
-import dev.bxlab.utils.ReflectionUtils;
-import dev.bxlab.utils.ValueUtils;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.core.ColumnMapping;
+import  dev.bxlab.resultset_mapper.utils.ConverterUtils;
+import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
+import  dev.bxlab.resultset_mapper.utils.ValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;

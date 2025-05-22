@@ -1,4 +1,4 @@
-package dev.bxlab.configs;
+package dev.bxlab.resultset_mapper.configs;
 
 import java.util.function.Function;
 

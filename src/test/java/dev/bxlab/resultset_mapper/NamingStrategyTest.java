@@ -1,6 +1,6 @@
-package dev.bxlab;
+package  dev.bxlab.resultset_mapper;
 
-import dev.bxlab.configs.NamingStrategy;
+import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

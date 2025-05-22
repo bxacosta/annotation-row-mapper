@@ -1,10 +1,10 @@
-package dev.bxlab;
+package  dev.bxlab.resultset_mapper;
 
-import dev.bxlab.configs.FieldConfig;
-import dev.bxlab.converters.DefaultConverter;
-import dev.bxlab.converters.TypeConverter;
-import dev.bxlab.core.ColumnMapping;
-import dev.bxlab.utils.ReflectionUtils;
+import  dev.bxlab.resultset_mapper.configs.FieldConfig;
+import  dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import  dev.bxlab.resultset_mapper.converters.TypeConverter;
+import  dev.bxlab.resultset_mapper.core.ColumnMapping;
+import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

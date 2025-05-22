@@ -1,7 +1,7 @@
-package dev.bxlab.configs;
+package  dev.bxlab.resultset_mapper.configs;
 
-import dev.bxlab.core.RowMapperBuilder;
-import dev.bxlab.utils.ValueUtils;
+import  dev.bxlab.resultset_mapper.core.RowMapperBuilder;
+import  dev.bxlab.resultset_mapper.utils.ValueUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -11,8 +11,8 @@ public class MapperConfig {
     private final boolean ignoreUnknowTypes;
     private final boolean ignoreUnknownColumns;
     private final boolean caseInsensitiveColumns;
-    private final NamingStrategy namingStrategy;
-    private final Map<String, FieldConfig> fieldMappingConfigs;
+    private final  dev.bxlab.resultset_mapper.configs.NamingStrategy namingStrategy;
+    private final Map<String,  dev.bxlab.resultset_mapper.configs.FieldConfig> fieldMappingConfigs;
 
     public MapperConfig(RowMapperBuilder<?> builder) {
         this.ignoreUnknowTypes = builder.isIgnoreUnknowTypes();
@@ -22,7 +22,7 @@ public class MapperConfig {
         this.fieldMappingConfigs = ValueUtils.requireNonNull(builder.getFieldConfigs(), "Field mapping configurations can not be null");
     }
 
-    public Optional<FieldConfig> getFieldConfig(String fieldName) {
+    public Optional< dev.bxlab.resultset_mapper.configs.FieldConfig> getFieldConfig(String fieldName) {
         if (this.fieldMappingConfigs == null) return Optional.empty();
         return Optional.ofNullable(this.fieldMappingConfigs.get(fieldName));
     }
@@ -39,7 +39,7 @@ public class MapperConfig {
         return caseInsensitiveColumns;
     }
 
-    public NamingStrategy getNamingStrategy() {
+    public  dev.bxlab.resultset_mapper.configs.NamingStrategy getNamingStrategy() {
         return namingStrategy;
     }
 }

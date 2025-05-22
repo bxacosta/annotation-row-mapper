@@ -1,9 +1,9 @@
-package dev.bxlab;
+package  dev.bxlab.resultset_mapper;
 
-import dev.bxlab.configs.NamingStrategy;
-import dev.bxlab.core.ColumnMapping;
-import dev.bxlab.core.ResultSetMapper;
-import dev.bxlab.core.RowMapperBuilder;
+import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
+import  dev.bxlab.resultset_mapper.core.ColumnMapping;
+import  dev.bxlab.resultset_mapper.core.ResultSetMapper;
+import  dev.bxlab.resultset_mapper.core.RowMapperBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
