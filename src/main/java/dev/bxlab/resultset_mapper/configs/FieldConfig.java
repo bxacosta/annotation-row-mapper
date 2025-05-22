@@ -1,16 +1,21 @@
-package  dev.bxlab.resultset_mapper.configs;
+package dev.bxlab.resultset_mapper.configs;
 
-import  dev.bxlab.resultset_mapper.converters.TypeConverter;
-import  dev.bxlab.resultset_mapper.core.ColumnMapping;
-import  dev.bxlab.resultset_mapper.utils.ConverterUtils;
-import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
-import  dev.bxlab.resultset_mapper.utils.ValueUtils;
+import dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.core.ColumnMapping;
+import dev.bxlab.resultset_mapper.utils.ConverterUtils;
+import dev.bxlab.resultset_mapper.utils.ReflectionUtils;
+import dev.bxlab.resultset_mapper.utils.ValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * This class allows defining how ResultSet columns are mapped to class fields,
+ * including type converters and additional attributes.
+ */
 public class FieldConfig {
+
     public static final String FORMAT_ATTRIBUTE = "format";
 
     private final String columnName;
@@ -23,6 +28,13 @@ public class FieldConfig {
         this.attributes = builder.attributes;
     }
 
+    /**
+     * Creates a field configuration from a ColumnMapping annotation.
+     *
+     * @param mappingAnnotation The annotation containing the mapping configuration
+     * @return A new FieldConfig instance
+     * @throws ReflectiveOperationException If an error occurs when creating the converter
+     */
     public static FieldConfig from(ColumnMapping mappingAnnotation) throws ReflectiveOperationException {
         String columName = ValueUtils.ifEmpty(mappingAnnotation.value(), null);
 
@@ -40,57 +52,122 @@ public class FieldConfig {
                 .build();
     }
 
+    /**
+     * Creates a new builder to configure a FieldConfig.
+     *
+     * @return A new FieldConfigBuilder
+     */
     public static FieldConfigBuilder builder() {
         return new FieldConfigBuilder();
     }
 
+    /**
+     * Gets the configured column name.
+     *
+     * @return The column name or empty if not defined
+     */
     public Optional<String> getColumnName() {
         return Optional.ofNullable(this.columnName);
     }
 
+    /**
+     * Gets the configured type converter.
+     *
+     * @return The type converter or empty if not defined
+     */
     public Optional<TypeConverter<?>> getConverter() {
         return Optional.ofNullable(this.converter);
     }
 
+    /**
+     * Gets all configured attributes.
+     *
+     * @return A map with the configured attributes
+     */
     public Map<String, Object> getAttributes() {
         return this.attributes == null ? new HashMap<>() : attributes;
     }
 
+    /**
+     * Gets a specific attribute with the indicated type.
+     *
+     * @param key Attribute key
+     * @param type Expected value type
+     * @return The attribute value or empty if it doesn't exist
+     */
     public <T> Optional<T> getAttribute(String key, Class<T> type) {
         Object value = this.attributes.get(key);
         return ValueUtils.isEmpty(value) ? Optional.empty() : Optional.of(type.cast(value));
     }
 
+    /**
+     * Builder for creating FieldConfig instances in a fluent manner.
+     */
     public static class FieldConfigBuilder {
         private final Map<String, Object> attributes;
 
         private String columnName;
         private TypeConverter<?> converter;
 
+        /**
+         * Creates a new builder with an empty attributes map.
+         */
         public FieldConfigBuilder() {
             this.attributes = new HashMap<>();
         }
 
+        /**
+         * Sets the column name for mapping.
+         *
+         * @param columnName Column name in the ResultSet
+         * @return The builder for method chaining
+         */
         public FieldConfigBuilder toColumn(String columnName) {
             this.columnName = columnName;
             return this;
         }
 
+        /**
+         * Sets the type converter for the field.
+         *
+         * @param converter Type converter to use
+         * @return The builder for method chaining
+         */
         public FieldConfigBuilder withConverter(TypeConverter<?> converter) {
             this.converter = converter;
             return this;
         }
 
+        /**
+         * Adds an attribute to the field configuration.
+         *
+         * @param key Attribute key
+         * @param value Attribute value
+         * @return The builder for method chaining
+         */
         public FieldConfigBuilder withAttribute(String key, Object value) {
             this.attributes.put(key, value);
             return this;
         }
 
+        /**
+         * Adds multiple attributes to the field configuration.
+         *
+         * @param attributes Map of attributes to add
+         * @return The builder for method chaining
+         */
         public FieldConfigBuilder withAttributes(Map<String, Object> attributes) {
             this.attributes.putAll(ValueUtils.requireNonNull(attributes, "Attributes can not be null"));
             return this;
         }
 
+        /**
+         * Builds a FieldConfig instance with the established configuration.
+         * Validates that the configured values are valid.
+         *
+         * @return A new FieldConfig instance
+         * @throws IllegalArgumentException If any configured value is invalid
+         */
         public FieldConfig build() {
             if (this.columnName != null) ValueUtils.requireNonEmpty(this.columnName, "Column name can not be empty");
 

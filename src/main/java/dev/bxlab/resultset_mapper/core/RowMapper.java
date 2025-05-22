@@ -17,12 +17,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Maps rows from a {@link ResultSet} to objects of type {@code T}.
+ * This class handles the conversion of data based on field configurations and type converters.
+ *
+ * @param <T> the type of object to map the ResultSet rows to
+ */
 public class RowMapper<T> implements ResultSetMapper<T> {
     private final Class<T> targetType;
     private final MapperConfig mapperConfig;
     private final Map<Field, FieldConfig> mappings;
     private final ConverterRegistry converterRegistry;
 
+    /**
+     * Constructs a RowMapper instance using a {@link RowMapperBuilder}.
+     *
+     * @param builder the builder instance containing the mapping configurations
+     */
     protected RowMapper(RowMapperBuilder<T> builder) {
         this.targetType = builder.getTargetType();
         this.mapperConfig = new MapperConfig(builder);
@@ -39,6 +50,13 @@ public class RowMapper<T> implements ResultSetMapper<T> {
         this.initializeMappings();
     }
 
+    /**
+     * Maps the current row of the given {@link ResultSet} to an object of type {@code T}.
+     *
+     * @param resultSet the ResultSet to map from, positioned at the row to be mapped
+     * @return an object of type {@code T} populated with data from the current ResultSet row
+     * @throws SQLException if a database access error occurs or this method is called on a closed result set
+     */
     @Override
     public T map(ResultSet resultSet) throws SQLException {
         Map<Field, Object> fieldValues = new HashMap<>();
@@ -61,7 +79,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
             // Type converter definition
             Optional<TypeConverter<?>> converter = fieldConfig.getConverter();
             if (converter.isEmpty()) {
-                if (this.mapperConfig.isIgnoreUnknowTypes()) continue;
+                if (this.mapperConfig.isIgnoreUnknownTypes()) continue;
                 converter = Optional.of(StandardConverters.OBJECT);
             }
 
@@ -76,6 +94,14 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                 (e) -> new IllegalStateException("Error mapping to: " + this.targetType.getSimpleName(), e));
     }
 
+    /**
+     * Retrieves a map of available column names from the ResultSet.
+     * The map keys are lookup names (potentially case-insensitive), and values are actual column names.
+     *
+     * @param rs the ResultSet to extract column names from
+     * @return a map of lookup names to actual column names
+     * @throws SQLException if a database access error occurs
+     */
     private Map<String, String> getAvailableColumns(ResultSet rs) throws SQLException {
         Map<String, String> columns = new HashMap<>();
         ResultSetMetaData metaData = rs.getMetaData();
@@ -89,6 +115,14 @@ public class RowMapper<T> implements ResultSetMapper<T> {
         return columns;
     }
 
+    /**
+     * Finds the actual column name in the map of available columns based on the lookup name.
+     * Considers case-insensitivity based on mapper configuration.
+     *
+     * @param columns    a map of available column names (lookup name -> actual name)
+     * @param lookupName the name to look up
+     * @return an Optional containing the actual column name if found, otherwise an empty Optional
+     */
     private Optional<String> findColumnName(Map<String, String> columns, String lookupName) {
         if (this.mapperConfig.isCaseInsensitiveColumns()) {
             return Optional.ofNullable(columns.get(lookupName.toLowerCase()));
@@ -96,6 +130,13 @@ public class RowMapper<T> implements ResultSetMapper<T> {
         return Optional.ofNullable(columns.get(lookupName));
     }
 
+    /**
+     * Initializes the field mappings for the target type.
+     * It inspects fields annotated with {@link ColumnMapping} and creates corresponding {@link FieldConfig} instances.
+     * Configuration priority is: mapper-level config > annotation config > default naming strategy.
+     *
+     * @throws IllegalStateException if a converter specified in an annotation cannot be instantiated
+     */
     private void initializeMappings() {
         List<Field> fields = ReflectionUtils.getAllFields(this.targetType);
 
