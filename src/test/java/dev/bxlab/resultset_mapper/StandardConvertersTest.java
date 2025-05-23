@@ -1,8 +1,8 @@
-package  dev.bxlab.resultset_mapper;
+package dev.bxlab.resultset_mapper;
 
-import  dev.bxlab.resultset_mapper.configs.FieldConfig;
-import  dev.bxlab.resultset_mapper.converters.ConverterRegistry;
-import  dev.bxlab.resultset_mapper.converters.StandardConverters;
+import dev.bxlab.resultset_mapper.configs.FieldConfig;
+import dev.bxlab.resultset_mapper.converters.ConverterRegistry;
+import dev.bxlab.resultset_mapper.converters.StandardConverters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,16 +13,21 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StandardConvertersTest {
@@ -38,6 +43,18 @@ class StandardConvertersTest {
     @BeforeEach
     void setUp() {
         attributes = new HashMap<>();
+    }
+
+    @Test
+    void testObjectConverter() throws SQLException {
+        String columnName = "data";
+        Object expectedValue = new Object();
+        when(resultSet.getObject(columnName)).thenReturn(expectedValue);
+
+        Object result = StandardConverters.OBJECT.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getObject(columnName);
     }
 
     @Test
@@ -64,6 +81,29 @@ class StandardConvertersTest {
     }
 
     @Test
+    void testBigDecimalConverter() throws SQLException {
+        String columnName = "amount";
+        BigDecimal expectedValue = new BigDecimal("123.45");
+        when(resultSet.getBigDecimal(columnName)).thenReturn(expectedValue);
+
+        BigDecimal result = StandardConverters.BIG_DECIMAL.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getBigDecimal(columnName);
+    }
+
+    @Test
+    void testBigDecimalConverterWithNull() throws SQLException {
+        String columnName = "amount";
+        when(resultSet.getBigDecimal(columnName)).thenReturn(null);
+
+        BigDecimal result = StandardConverters.BIG_DECIMAL.convert(resultSet, columnName, attributes);
+
+        assertNull(result);
+        verify(resultSet).getBigDecimal(columnName);
+    }
+
+    @Test
     void testIntegerConverter() throws SQLException {
         String columnName = "id";
         int expectedValue = 42;
@@ -80,7 +120,7 @@ class StandardConvertersTest {
     @Test
     void testIntegerConverterWithNull() throws SQLException {
         String columnName = "id";
-        when(resultSet.getInt(columnName)).thenReturn(0); // Valor por defecto para int
+        when(resultSet.getInt(columnName)).thenReturn(0); // Default value for int
         when(resultSet.wasNull()).thenReturn(true);
 
         Integer result = StandardConverters.INTEGER.convert(resultSet, columnName, attributes);
@@ -107,7 +147,7 @@ class StandardConvertersTest {
     @Test
     void testBooleanConverterWithNull() throws SQLException {
         String columnName = "active";
-        when(resultSet.getBoolean(columnName)).thenReturn(false); // Valor por defecto para boolean
+        when(resultSet.getBoolean(columnName)).thenReturn(false); // Default value for boolean
         when(resultSet.wasNull()).thenReturn(true);
 
         Boolean result = StandardConverters.BOOLEAN.convert(resultSet, columnName, attributes);
@@ -132,21 +172,96 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testBigDecimalConverter() throws SQLException {
-        String columnName = "amount";
-        BigDecimal expectedValue = new BigDecimal("123.45");
-        when(resultSet.getBigDecimal(columnName)).thenReturn(expectedValue);
+    void testDoubleConverterWithNull() throws SQLException {
+        String columnName = "price";
+        when(resultSet.getDouble(columnName)).thenReturn(0.0); // Default value for double
+        when(resultSet.wasNull()).thenReturn(true);
 
-        BigDecimal result = StandardConverters.BIG_DECIMAL.convert(resultSet, columnName, attributes);
+        Double result = StandardConverters.DOUBLE.convert(resultSet, columnName, attributes);
+
+        assertNull(result);
+        verify(resultSet).getDouble(columnName);
+        verify(resultSet).wasNull();
+    }
+
+    @Test
+    void testFloatConverter() throws SQLException {
+        String columnName = "rating";
+        float expectedValue = 4.5f;
+        when(resultSet.getFloat(columnName)).thenReturn(expectedValue);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        Float result = StandardConverters.FLOAT.convert(resultSet, columnName, attributes);
 
         assertEquals(expectedValue, result);
-        verify(resultSet).getBigDecimal(columnName);
+        verify(resultSet).getFloat(columnName);
+        verify(resultSet).wasNull();
+    }
+
+    @Test
+    void testLongConverter() throws SQLException {
+        String columnName = "timestamp";
+        long expectedValue = 1621234567890L;
+        when(resultSet.getLong(columnName)).thenReturn(expectedValue);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        Long result = StandardConverters.LONG.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getLong(columnName);
+        verify(resultSet).wasNull();
+    }
+
+    @Test
+    void testShortConverter() throws SQLException {
+        String columnName = "code";
+        short expectedValue = 32767;
+        when(resultSet.getShort(columnName)).thenReturn(expectedValue);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        Short result = StandardConverters.SHORT.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getShort(columnName);
+        verify(resultSet).wasNull();
+    }
+
+    @Test
+    void testDateConverter() throws SQLException {
+        String columnName = "registration_date";
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.parse("2025-05-22T10:15:30"));
+        Date expectedValue = new Date(timestamp.getTime());
+
+        when(resultSet.getTimestamp(columnName)).thenReturn(timestamp);
+
+        Date result = StandardConverters.DATE.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getTimestamp(columnName);
+    }
+
+    @Test
+    void testDateConverterWithFormat() throws SQLException, ParseException {
+        String columnName = "registration_date";
+        String dateString = "15/05/2025 14:30:00";
+        String format = "dd/MM/yyyy HH:mm:ss";
+
+        attributes.put(FieldConfig.FORMAT_ATTRIBUTE, format);
+        when(resultSet.getString(columnName)).thenReturn(dateString);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        Date expectedValue = dateFormat.parse(dateString);
+
+        Date result = StandardConverters.DATE.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getString(columnName);
     }
 
     @Test
     void testLocalDateConverter() throws SQLException {
         String columnName = "birth_date";
-        LocalDate expectedValue = LocalDate.of(2023, 10, 15);
+        LocalDate expectedValue = LocalDate.of(2025, 5, 15);
         java.sql.Date sqlDate = java.sql.Date.valueOf(expectedValue);
         when(resultSet.getDate(columnName)).thenReturn(sqlDate);
 
@@ -159,9 +274,9 @@ class StandardConvertersTest {
     @Test
     void testLocalDateConverterWithFormat() throws SQLException {
         String columnName = "birth_date";
-        String dateString = "15/10/2023";
+        String dateString = "15/05/2025";
         String format = "dd/MM/yyyy";
-        LocalDate expectedValue = LocalDate.of(2023, 10, 15);
+        LocalDate expectedValue = LocalDate.of(2025, 5, 15);
 
         attributes.put(FieldConfig.FORMAT_ATTRIBUTE, format);
         when(resultSet.getString(columnName)).thenReturn(dateString);
@@ -175,7 +290,7 @@ class StandardConvertersTest {
     @Test
     void testLocalDateTimeConverter() throws SQLException {
         String columnName = "created_at";
-        LocalDateTime expectedValue = LocalDateTime.of(2023, 10, 15, 14, 30, 0);
+        LocalDateTime expectedValue = LocalDateTime.of(2025, 5, 15, 14, 30, 0);
         Timestamp timestamp = Timestamp.valueOf(expectedValue);
         when(resultSet.getTimestamp(columnName)).thenReturn(timestamp);
 
@@ -186,31 +301,75 @@ class StandardConvertersTest {
     }
 
     @Test
+    void testLocalDateTimeConverterWithFormat() throws SQLException {
+        String columnName = "created_at";
+        String dateTimeString = "15/05/2025 14:30:00";
+        String format = "dd/MM/yyyy HH:mm:ss";
+        LocalDateTime expectedValue = LocalDateTime.of(2025, 5, 15, 14, 30, 0);
+
+        attributes.put(FieldConfig.FORMAT_ATTRIBUTE, format);
+        when(resultSet.getString(columnName)).thenReturn(dateTimeString);
+
+        LocalDateTime result = StandardConverters.LOCAL_DATE_TIME.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getString(columnName);
+    }
+
+    @Test
     void testZonedDateTimeConverter() throws SQLException {
         String columnName = "updated_at";
-        LocalDateTime localDateTime = LocalDateTime.of(2023, 10, 15, 14, 30, 0);
-        ZonedDateTime expectedValue = localDateTime.atZone(ZoneId.systemDefault());
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
-        when(resultSet.getTimestamp(columnName)).thenReturn(timestamp);
+        ZonedDateTime expectedZonedDateTime = ZonedDateTime.parse("2025-05-22T10:15:30+01:00[Europe/Paris]").withZoneSameInstant(ZoneOffset.UTC);
+        when(resultSet.getTimestamp(columnName)).thenReturn(Timestamp.from(expectedZonedDateTime.toInstant()));
 
         ZonedDateTime result = StandardConverters.ZONED_DATE_TIME.convert(resultSet, columnName, attributes);
 
-        assertEquals(expectedValue.toLocalDateTime(), result.toLocalDateTime());
+        assertEquals(expectedZonedDateTime, result);
         verify(resultSet).getTimestamp(columnName);
     }
 
     @Test
-    void testDateConverter() throws SQLException {
-        String columnName = "registration_date";
-        LocalDateTime localDateTime = LocalDateTime.of(2023, 10, 15, 14, 30, 0);
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
-        Date expectedValue = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        when(resultSet.getTimestamp(columnName)).thenReturn(timestamp);
+    void testZonedDateTimeConverterWithFormat() throws SQLException {
+        String columnName = "updated_at";
+        String dateTimeString = "2025-05-22 10:15:30 +0100";
+        String format = "yyyy-MM-dd HH:mm:ss X";
+        ZonedDateTime expectedValue = ZonedDateTime.parse("2025-05-22T10:15:30+01:00").withZoneSameInstant(ZoneOffset.UTC);
 
-        Date result = StandardConverters.DATE.convert(resultSet, columnName, attributes);
+        attributes.put(FieldConfig.FORMAT_ATTRIBUTE, format);
+        when(resultSet.getString(columnName)).thenReturn(dateTimeString);
+
+        ZonedDateTime result = StandardConverters.ZONED_DATE_TIME.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getString(columnName);
+    }
+
+    @Test
+    void testOffsetDateTimeConverter() throws SQLException {
+        String columnName = "timestamp";
+        OffsetDateTime expectedValue = OffsetDateTime.parse("2025-05-22T10:15:30+01:00").withOffsetSameInstant(ZoneOffset.UTC);
+        when(resultSet.getTimestamp(columnName)).thenReturn(Timestamp.from(expectedValue.toInstant()));
+
+        OffsetDateTime result = StandardConverters.OFFSET_DATE_TIME.convert(resultSet, columnName, attributes);
 
         assertEquals(expectedValue, result);
         verify(resultSet).getTimestamp(columnName);
+    }
+
+    @Test
+    void testOffsetDateTimeConverterWithFormat() throws SQLException {
+        String columnName = "timestamp";
+        String dateTimeString = "2025-05-22 10:15:30 +0100";
+        String format = "yyyy-MM-dd HH:mm:ss X";
+        OffsetDateTime expectedValue = OffsetDateTime.parse("2025-05-22T10:15:30+01:00").withOffsetSameInstant(ZoneOffset.UTC);
+
+        attributes.put(FieldConfig.FORMAT_ATTRIBUTE, format);
+        when(resultSet.getString(columnName)).thenReturn(dateTimeString);
+
+        OffsetDateTime result = StandardConverters.OFFSET_DATE_TIME.convert(resultSet, columnName, attributes);
+
+        assertEquals(expectedValue, result);
+        verify(resultSet).getString(columnName);
     }
 
     @Test
@@ -234,6 +393,7 @@ class StandardConvertersTest {
         verify(registry).register(LocalDate.class, StandardConverters.LOCAL_DATE);
         verify(registry).register(LocalDateTime.class, StandardConverters.LOCAL_DATE_TIME);
         verify(registry).register(ZonedDateTime.class, StandardConverters.ZONED_DATE_TIME);
+        verify(registry).register(OffsetDateTime.class, StandardConverters.OFFSET_DATE_TIME);
         verify(registry).register(BigDecimal.class, StandardConverters.BIG_DECIMAL);
     }
 }

@@ -1,12 +1,13 @@
-package  dev.bxlab.resultset_mapper.utils;
+package dev.bxlab.resultset_mapper.utils;
 
-import  dev.bxlab.resultset_mapper.converters.DefaultConverter;
-import  dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import dev.bxlab.resultset_mapper.converters.TypeConverter;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -49,7 +50,7 @@ public final class ConverterUtils {
      * @return the parsed {@link ZonedDateTime}
      */
     public static ZonedDateTime toZonedDateTime(String value, String format) {
-        return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(format));
+        return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(format)).withZoneSameInstant(ZoneOffset.UTC);
     }
 
     /**
@@ -60,7 +61,7 @@ public final class ConverterUtils {
      * @return the parsed {@link OffsetDateTime}
      */
     public static OffsetDateTime toOffsetDateTime(String value, String format) {
-        return OffsetDateTime.parse(value, DateTimeFormatter.ofPattern(format));
+        return OffsetDateTime.parse(value, DateTimeFormatter.ofPattern(format)).withOffsetSameInstant(ZoneOffset.UTC);
     }
 
     /**
