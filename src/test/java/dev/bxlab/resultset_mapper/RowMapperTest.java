@@ -47,7 +47,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapBasicTypes() throws SQLException {
+    void shouldMapBasicTypes() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("id");
         when(metaData.getColumnLabel(2)).thenReturn("name");
@@ -68,7 +68,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithCustomColumnNames() throws SQLException {
+    void shouldMapWithCustomColumnNames() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("user_id");
         when(metaData.getColumnLabel(2)).thenReturn("full_name");
@@ -89,7 +89,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithCaseInsensitiveColumns() throws SQLException {
+    void shouldMapWithCaseInsensitiveColumns() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("USER_ID");
         when(metaData.getColumnLabel(2)).thenReturn("FULL_NAME");
@@ -122,7 +122,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithCustomConverter() throws SQLException {
+    void shouldMapWithCustomConverter() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("BIRTH_DATE");
@@ -145,7 +145,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithIgnoreUnknownColumns() throws SQLException {
+    void shouldHandleIgnoreUnknownColumns() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(1);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
 
@@ -170,7 +170,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithNamingStrategy() throws SQLException {
+    void shouldMapWithNamingStrategy() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("user_id");
         when(metaData.getColumnLabel(2)).thenReturn("user_name");
@@ -191,7 +191,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithInvalidColumnName() throws SQLException {
+    void shouldThrowExceptionWithInvalidColumnName() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(1);
         when(metaData.getColumnLabel(1)).thenReturn("DIFFERENT_ID");
 
@@ -204,7 +204,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithFormatAttribute() throws SQLException {
+    void shouldMapWithFormatAttribute() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("CREATED_AT");
@@ -227,7 +227,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithCustomAttributes() throws SQLException {
+    void shouldMapWithCustomAttributes() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("SCORE");
@@ -272,7 +272,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithCustomConverters() throws SQLException {
+    void shouldMapWithCustomConverters() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("ROLE");
@@ -296,7 +296,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithFallbackConverter() throws SQLException {
+    void shouldMapWithFallbackConverter() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("id");
         when(metaData.getColumnLabel(2)).thenReturn("name");
@@ -321,7 +321,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithDefaultConverter() throws SQLException {
+    void shouldThrowExceptionWithDefaultConverter() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(1);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
 
@@ -337,7 +337,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithProgrammaticFieldConfig() throws SQLException {
+    void shouldMapWithProgrammaticFieldConfig() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("USER_CODE");
         when(metaData.getColumnLabel(2)).thenReturn("USER_NAME");
@@ -358,7 +358,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithNullValues() throws SQLException {
+    void shouldMapWithNullValues() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("NAME");
@@ -380,7 +380,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithFailingConverter() throws SQLException {
+    void shouldThrowExceptionWithFailingConverter() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
         when(metaData.getColumnLabel(2)).thenReturn("NAME");
@@ -396,7 +396,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapWithNoDefaultConstructor() throws SQLException {
+    void shouldThrowErrorWithNoDefaultConstructor() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(1);
         when(metaData.getColumnLabel(1)).thenReturn("ID");
 
@@ -409,7 +409,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapAllDateTimeTypes() throws SQLException {
+    void shouldMapAllDateTimeTypes() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(4);
         when(metaData.getColumnLabel(1)).thenReturn("local_date_field");
         when(metaData.getColumnLabel(2)).thenReturn("local_date_time_field");
@@ -440,7 +440,7 @@ class RowMapperTest {
     }
 
     @Test
-    void mapAllBasicTypes() throws SQLException {
+    void shouldMapAllBasicTypes() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(3);
         when(metaData.getColumnLabel(1)).thenReturn("id");
         when(metaData.getColumnLabel(2)).thenReturn("name");

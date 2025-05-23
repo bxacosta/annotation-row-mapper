@@ -1,11 +1,10 @@
-package  dev.bxlab.resultset_mapper;
+package dev.bxlab.resultset_mapper;
 
-import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
-import  dev.bxlab.resultset_mapper.converters.TypeConverter;
-import  dev.bxlab.resultset_mapper.core.ResultSetMapper;
-import  dev.bxlab.resultset_mapper.core.RowMapper;
-import  dev.bxlab.resultset_mapper.core.RowMapperBuilder;
-import org.junit.jupiter.api.DisplayName;
+import dev.bxlab.resultset_mapper.configs.NamingStrategy;
+import dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.core.ResultSetMapper;
+import dev.bxlab.resultset_mapper.core.RowMapper;
+import dev.bxlab.resultset_mapper.core.RowMapperBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,8 +27,7 @@ public class RowMapperBuilderTest {
     private TypeConverter<String> mockStringConverter;
 
     @Test
-    @DisplayName("forType should create builder with correct target type")
-    void forType_ShouldCreateBuilder_WithCorrectTargetType() {
+    void shouldCreateBuilderWithCorrectTargetType() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class);
 
         assertNotNull(builder);
@@ -37,8 +35,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("build should create RowMapper instance")
-    void build_ShouldCreateRowMapperInstance() {
+    void shouldCreateRowMapperInstance() {
         ResultSetMapper<TestDTO> mapper = RowMapperBuilder.forType(TestDTO.class).build();
 
         assertNotNull(mapper);
@@ -46,8 +43,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("Builder should have correct default values")
-    void builder_ShouldHaveCorrectDefaultValues() {
+    void shouldHaveCorrectDefaultValues() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class);
 
         assertEquals(NamingStrategy.AS_IS, builder.getNamingStrategy());
@@ -61,8 +57,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("withNamingStrategy should set naming strategy")
-    void withNamingStrategy_ShouldSetNamingStrategy() {
+    void shouldSetNamingStrategy() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class)
                 .withNamingStrategy(NamingStrategy.SNAKE_CASE);
 
@@ -70,8 +65,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("RowMapperBuilder flags should be set correctly")
-    void rowMapperBuilderFlags_ShouldBeSetCorrectly() {
+    void shouldSetFlagsCorrectly() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class)
                 .ignoreUnknownTypes(false)
                 .ignoreUnknownColumns(false)
@@ -87,8 +81,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("mapField should add field configuration")
-    void mapField_ShouldAddFieldConfiguration() {
+    void shouldAddFieldConfiguration() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class)
                 .mapField("name", config -> config.toColumn("user_name"));
 
@@ -99,8 +92,7 @@ public class RowMapperBuilderTest {
     }
 
     @Test
-    @DisplayName("registerConverter should add converter to registry")
-    void registerConverter_ShouldAddConverterToRegistry() {
+    void shouldAddConverterToRegistry() {
         RowMapperBuilder<TestDTO> builder = RowMapperBuilder.forType(TestDTO.class)
                 .registerConverter(String.class, mockStringConverter);
 

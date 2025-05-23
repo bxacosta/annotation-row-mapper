@@ -1,15 +1,14 @@
-package  dev.bxlab.resultset_mapper;
+package dev.bxlab.resultset_mapper;
 
-import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
-import org.junit.jupiter.api.DisplayName;
+import dev.bxlab.resultset_mapper.configs.NamingStrategy;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NamingStrategyTest {
+
     @Test
-    @DisplayName("AS_IS strategy should keep field name unchanged")
-    void asIs_ShouldKeepFieldNameUnchanged() {
+    void shouldKeepFieldNameUnchanged() {
         NamingStrategy strategy = NamingStrategy.AS_IS;
 
         assertEquals("firstName", strategy.fieldToColumnName("firstName"));
@@ -22,8 +21,7 @@ class NamingStrategyTest {
     }
 
     @Test
-    @DisplayName("SNAKE_CASE strategy should convert camelCase to snake_case")
-    void snakeCase_ShouldConvertCamelCaseToSnakeCase() {
+    void shouldConvertCamelCaseToSnakeCase() {
         NamingStrategy strategy = NamingStrategy.SNAKE_CASE;
 
         assertEquals("first_name", strategy.fieldToColumnName("firstName"));
@@ -38,8 +36,7 @@ class NamingStrategyTest {
     }
 
     @Test
-    @DisplayName("UPPER_SNAKE_CASE strategy should convert camelCase to UPPER_SNAKE_CASE")
-    void upperSnakeCase_ShouldConvertCamelCaseToUpperSnakeCase() {
+    void shouldConvertCamelCaseToUpperSnakeCase() {
         NamingStrategy strategy = NamingStrategy.UPPER_SNAKE_CASE;
 
         assertEquals("FIRST_NAME", strategy.fieldToColumnName("firstName"));

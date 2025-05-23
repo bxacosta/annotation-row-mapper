@@ -1,11 +1,10 @@
-package  dev.bxlab.resultset_mapper;
+package dev.bxlab.resultset_mapper;
 
-import  dev.bxlab.resultset_mapper.configs.FieldConfig;
-import  dev.bxlab.resultset_mapper.converters.DefaultConverter;
-import  dev.bxlab.resultset_mapper.converters.TypeConverter;
-import  dev.bxlab.resultset_mapper.core.ColumnMapping;
-import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
-import org.junit.jupiter.api.DisplayName;
+import dev.bxlab.resultset_mapper.configs.FieldConfig;
+import dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.core.ColumnMapping;
+import dev.bxlab.resultset_mapper.utils.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,8 +30,7 @@ public class FieldConfigTest {
     private TypeConverter<?> mockConverter;
 
     @Test
-    @DisplayName("Builder should create FieldConfig with valid parameters")
-    void builder_ShouldCreateFieldConfig_WithValidParameters() {
+    void shouldCreateFieldConfigWithValidParameters() {
         FieldConfig config = FieldConfig.builder()
                 .toColumn("user_name")
                 .withConverter(mockConverter)
@@ -46,8 +44,7 @@ public class FieldConfigTest {
     }
 
     @Test
-    @DisplayName("Builder should handle null values properly")
-    void builder_ShouldHandleNullValues() {
+    void shouldHandleNullValues() {
         FieldConfig config = FieldConfig.builder().build();
 
         assertTrue(config.getColumnName().isEmpty());
@@ -57,28 +54,24 @@ public class FieldConfigTest {
     }
 
     @Test
-    @DisplayName("Builder should throw exception when column name is empty")
-    void builder_ShouldThrowException_WhenColumnNameIsEmpty() {
+    void shouldThrowExceptionWhenColumnNameIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().toColumn("").build());
     }
 
     @Test
-    @DisplayName("Builder should throw exception when attribute key is empty or null")
-    void builder_ShouldThrowException_WhenAttributeKeyIsEmpty() {
+    void shouldThrowExceptionWhenAttributeKeyIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().withAttribute(" ", "value").build());
         assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().withAttribute(null, "value").build());
     }
 
     @Test
-    @DisplayName("Builder should throw exception when attribute value is null")
-    void builder_ShouldThrowException_WhenAttributeValueIsEmpty() {
+    void shouldThrowExceptionWhenAttributeValueIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> FieldConfig.builder().withAttribute("testKey", null).build());
         assertDoesNotThrow(() -> FieldConfig.builder().withAttribute("testKey", " ").build());
     }
 
     @Test
-    @DisplayName("FieldConfig.from should build FieldConfig with empty parameters")
-    void from_shouldBuildFieldConfig() throws Exception {
+    void shouldBuildFieldConfigFromAnnotation() throws Exception {
         when(mappingAnnotation.value()).thenReturn("");
         when(mappingAnnotation.format()).thenReturn("");
         when(mappingAnnotation.converter()).thenReturn(null);

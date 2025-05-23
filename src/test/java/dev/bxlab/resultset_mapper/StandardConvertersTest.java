@@ -46,7 +46,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testObjectConverter() throws SQLException {
+    void shouldConvertObjectValue() throws SQLException {
         String columnName = "data";
         Object expectedValue = new Object();
         when(resultSet.getObject(columnName)).thenReturn(expectedValue);
@@ -58,7 +58,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testStringConverter() throws SQLException {
+    void shouldConvertStringValue() throws SQLException {
         String columnName = "name";
         String expectedValue = "test value";
         when(resultSet.getString(columnName)).thenReturn(expectedValue);
@@ -70,7 +70,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testStringConverterWithNull() throws SQLException {
+    void shouldReturnNullWhenStringValueIsNull() throws SQLException {
         String columnName = "name";
         when(resultSet.getString(columnName)).thenReturn(null);
 
@@ -81,7 +81,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testBigDecimalConverter() throws SQLException {
+    void shouldConvertBigDecimalValue() throws SQLException {
         String columnName = "amount";
         BigDecimal expectedValue = new BigDecimal("123.45");
         when(resultSet.getBigDecimal(columnName)).thenReturn(expectedValue);
@@ -93,7 +93,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testBigDecimalConverterWithNull() throws SQLException {
+    void shouldReturnNullWhenBigDecimalValueIsNull() throws SQLException {
         String columnName = "amount";
         when(resultSet.getBigDecimal(columnName)).thenReturn(null);
 
@@ -104,7 +104,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testIntegerConverter() throws SQLException {
+    void shouldConvertIntegerValue() throws SQLException {
         String columnName = "id";
         int expectedValue = 42;
         when(resultSet.getInt(columnName)).thenReturn(expectedValue);
@@ -118,7 +118,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testIntegerConverterWithNull() throws SQLException {
+    void shouldReturnNullWhenIntegerValueIsNull() throws SQLException {
         String columnName = "id";
         when(resultSet.getInt(columnName)).thenReturn(0); // Default value for int
         when(resultSet.wasNull()).thenReturn(true);
@@ -131,7 +131,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testBooleanConverter() throws SQLException {
+    void shouldConvertBooleanValue() throws SQLException {
         String columnName = "active";
         boolean expectedValue = true;
         when(resultSet.getBoolean(columnName)).thenReturn(expectedValue);
@@ -145,7 +145,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testBooleanConverterWithNull() throws SQLException {
+    void shouldReturnNullWhenBooleanValueIsNull() throws SQLException {
         String columnName = "active";
         when(resultSet.getBoolean(columnName)).thenReturn(false); // Default value for boolean
         when(resultSet.wasNull()).thenReturn(true);
@@ -158,7 +158,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testDoubleConverter() throws SQLException {
+    void shouldConvertDoubleValue() throws SQLException {
         String columnName = "price";
         double expectedValue = 99.99;
         when(resultSet.getDouble(columnName)).thenReturn(expectedValue);
@@ -172,7 +172,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testDoubleConverterWithNull() throws SQLException {
+    void shouldReturnNullWhenDoubleValueIsNull() throws SQLException {
         String columnName = "price";
         when(resultSet.getDouble(columnName)).thenReturn(0.0); // Default value for double
         when(resultSet.wasNull()).thenReturn(true);
@@ -185,7 +185,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testFloatConverter() throws SQLException {
+    void shouldConvertFloatValue() throws SQLException {
         String columnName = "rating";
         float expectedValue = 4.5f;
         when(resultSet.getFloat(columnName)).thenReturn(expectedValue);
@@ -199,7 +199,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testLongConverter() throws SQLException {
+    void shouldConvertLongValue() throws SQLException {
         String columnName = "timestamp";
         long expectedValue = 1621234567890L;
         when(resultSet.getLong(columnName)).thenReturn(expectedValue);
@@ -213,7 +213,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testShortConverter() throws SQLException {
+    void shouldConvertShortValue() throws SQLException {
         String columnName = "code";
         short expectedValue = 32767;
         when(resultSet.getShort(columnName)).thenReturn(expectedValue);
@@ -227,7 +227,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testDateConverter() throws SQLException {
+    void shouldConvertDateValue() throws SQLException {
         String columnName = "registration_date";
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.parse("2025-05-22T10:15:30"));
         Date expectedValue = new Date(timestamp.getTime());
@@ -241,7 +241,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testDateConverterWithFormat() throws SQLException, ParseException {
+    void shouldConvertDateValueWithFormat() throws SQLException, ParseException {
         String columnName = "registration_date";
         String dateString = "15/05/2025 14:30:00";
         String format = "dd/MM/yyyy HH:mm:ss";
@@ -259,7 +259,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testLocalDateConverter() throws SQLException {
+    void shouldConvertLocalDateValue() throws SQLException {
         String columnName = "birth_date";
         LocalDate expectedValue = LocalDate.of(2025, 5, 15);
         java.sql.Date sqlDate = java.sql.Date.valueOf(expectedValue);
@@ -272,7 +272,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testLocalDateConverterWithFormat() throws SQLException {
+    void shouldConvertLocalDateValueWithFormat() throws SQLException {
         String columnName = "birth_date";
         String dateString = "15/05/2025";
         String format = "dd/MM/yyyy";
@@ -288,7 +288,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testLocalDateTimeConverter() throws SQLException {
+    void shouldConvertLocalDateTimeValue() throws SQLException {
         String columnName = "created_at";
         LocalDateTime expectedValue = LocalDateTime.of(2025, 5, 15, 14, 30, 0);
         Timestamp timestamp = Timestamp.valueOf(expectedValue);
@@ -301,7 +301,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testLocalDateTimeConverterWithFormat() throws SQLException {
+    void shouldConvertLocalDateTimeValueWithFormat() throws SQLException {
         String columnName = "created_at";
         String dateTimeString = "15/05/2025 14:30:00";
         String format = "dd/MM/yyyy HH:mm:ss";
@@ -317,7 +317,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testZonedDateTimeConverter() throws SQLException {
+    void shouldConvertZonedDateTimeValue() throws SQLException {
         String columnName = "updated_at";
         ZonedDateTime expectedZonedDateTime = ZonedDateTime.parse("2025-05-22T10:15:30+01:00[Europe/Paris]").withZoneSameInstant(ZoneOffset.UTC);
         when(resultSet.getTimestamp(columnName)).thenReturn(Timestamp.from(expectedZonedDateTime.toInstant()));
@@ -329,7 +329,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testZonedDateTimeConverterWithFormat() throws SQLException {
+    void shouldConvertZonedDateTimeValueWithFormat() throws SQLException {
         String columnName = "updated_at";
         String dateTimeString = "2025-05-22 10:15:30 +0100";
         String format = "yyyy-MM-dd HH:mm:ss X";
@@ -345,7 +345,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testOffsetDateTimeConverter() throws SQLException {
+    void shouldConvertOffsetDateTimeValue() throws SQLException {
         String columnName = "timestamp";
         OffsetDateTime expectedValue = OffsetDateTime.parse("2025-05-22T10:15:30+01:00").withOffsetSameInstant(ZoneOffset.UTC);
         when(resultSet.getTimestamp(columnName)).thenReturn(Timestamp.from(expectedValue.toInstant()));
@@ -357,7 +357,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testOffsetDateTimeConverterWithFormat() throws SQLException {
+    void shouldConvertOffsetDateTimeValueWithFormat() throws SQLException {
         String columnName = "timestamp";
         String dateTimeString = "2025-05-22 10:15:30 +0100";
         String format = "yyyy-MM-dd HH:mm:ss X";
@@ -373,7 +373,7 @@ class StandardConvertersTest {
     }
 
     @Test
-    void testRegisterDefaults() {
+    void shouldRegisterAllDefaultConverters() {
         StandardConverters.registerDefaults(registry);
 
         verify(registry).register(String.class, StandardConverters.STRING);
