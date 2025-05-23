@@ -1,9 +1,10 @@
-package  dev.bxlab.resultset_mapper;
+package dev.bxlab.resultset_mapper;
 
-import  dev.bxlab.resultset_mapper.configs.NamingStrategy;
-import  dev.bxlab.resultset_mapper.core.ColumnMapping;
-import  dev.bxlab.resultset_mapper.core.ResultSetMapper;
-import  dev.bxlab.resultset_mapper.core.RowMapperBuilder;
+import dev.bxlab.resultset_mapper.configs.NamingStrategy;
+import dev.bxlab.resultset_mapper.converters.DefaultConverter;
+import dev.bxlab.resultset_mapper.core.ColumnMapping;
+import dev.bxlab.resultset_mapper.core.ResultSetMapper;
+import dev.bxlab.resultset_mapper.core.RowMapperBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -315,6 +321,22 @@ class RowMapperTest {
     }
 
     @Test
+    void mapWithDefaultConverter() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(1);
+        when(metaData.getColumnLabel(1)).thenReturn("ID");
+
+        ResultSetMapper<BasicUser> mapper = RowMapperBuilder
+                .forType(BasicUser.class)
+                .mapField("id", config -> config
+                        .withConverter(new DefaultConverter())
+                )
+                .build();
+
+        Exception exception = assertThrows(UnsupportedOperationException.class, () -> mapper.map(resultSet));
+        assertTrue(exception.getMessage().contains("Default converter does not support conversion"));
+    }
+
+    @Test
     void mapWithProgrammaticFieldConfig() throws SQLException {
         when(metaData.getColumnCount()).thenReturn(2);
         when(metaData.getColumnLabel(1)).thenReturn("USER_CODE");
@@ -384,6 +406,37 @@ class RowMapperTest {
 
         Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
         assertTrue(exception.getMessage().contains("Error mapping to"));
+    }
+
+    @Test
+    void mapAllDateTimeTypes() throws SQLException {
+        when(metaData.getColumnCount()).thenReturn(4);
+        when(metaData.getColumnLabel(1)).thenReturn("local_date_field");
+        when(metaData.getColumnLabel(2)).thenReturn("local_date_time_field");
+        when(metaData.getColumnLabel(3)).thenReturn("offset_date_time_field");
+        when(metaData.getColumnLabel(4)).thenReturn("zoned_date_time_field");
+
+        LocalDate expectedLocalDate = LocalDate.parse("2025-05-22");
+        LocalDateTime expectedLocalDateTime = LocalDateTime.parse("2025-05-22T10:15:30");
+        OffsetDateTime expectedOffsetDateTime = OffsetDateTime.parse("2025-05-22T10:15:30+01:00").withOffsetSameInstant(ZoneOffset.UTC);
+        ZonedDateTime expectedZonedDateTime = ZonedDateTime.parse("2025-05-22T10:15:30+01:00[Europe/Paris]").withZoneSameInstant(ZoneOffset.UTC);
+
+        when(resultSet.getDate("local_date_field")).thenReturn(java.sql.Date.valueOf(expectedLocalDate));
+        when(resultSet.getTimestamp("local_date_time_field")).thenReturn(Timestamp.valueOf(expectedLocalDateTime));
+        when(resultSet.getTimestamp("offset_date_time_field")).thenReturn(Timestamp.from(expectedOffsetDateTime.toInstant()));
+        when(resultSet.getTimestamp("zoned_date_time_field")).thenReturn(Timestamp.from(expectedZonedDateTime.toInstant()));
+
+        ResultSetMapper<DateTimeDto> mapper = RowMapperBuilder.forType(DateTimeDto.class)
+                .withNamingStrategy(NamingStrategy.SNAKE_CASE)
+                .build();
+
+        DateTimeDto dto = mapper.map(resultSet);
+
+        assertNotNull(dto);
+        assertEquals(expectedLocalDate, dto.localDateField());
+        assertEquals(expectedLocalDateTime, dto.localDateTimeField());
+        assertEquals(expectedOffsetDateTime, dto.offsetDateTimeField());
+        assertEquals(expectedZonedDateTime, dto.zonedDateTimeField());
     }
 
     @Test
@@ -465,6 +518,14 @@ class RowMapperTest {
         public enum Role {
             ADMIN, USER
         }
+    }
+
+    public record DateTimeDto(
+            @ColumnMapping LocalDate localDateField,
+            @ColumnMapping LocalDateTime localDateTimeField,
+            @ColumnMapping OffsetDateTime offsetDateTimeField,
+            @ColumnMapping ZonedDateTime zonedDateTimeField
+    ) {
     }
 
     @SuppressWarnings("unused")

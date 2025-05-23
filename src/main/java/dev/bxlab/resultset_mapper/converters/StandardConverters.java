@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Optional;
@@ -63,13 +63,13 @@ public final class StandardConverters {
     /** Standard converter for ZonedDateTime values with format support */
     public static final TypeConverter<ZonedDateTime> ZONED_DATE_TIME = createDateConverter(
             ResultSet::getTimestamp,
-            timestamp -> timestamp.toInstant().atZone(ZoneId.systemDefault()),
+            timestamp -> timestamp.toInstant().atZone(ZoneOffset.UTC),
             ConverterUtils::toZonedDateTime
     );
     /** Standard converter for OffsetDateTime values with format support */
-    private static final TypeConverter<OffsetDateTime> OFFSET_DATE_TIME = createDateConverter(
+    public static final TypeConverter<OffsetDateTime> OFFSET_DATE_TIME = createDateConverter(
             ResultSet::getTimestamp,
-            timestamp -> timestamp.toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime(),
+            timestamp -> timestamp.toInstant().atOffset(ZoneOffset.UTC),
             ConverterUtils::toOffsetDateTime
     );
 
