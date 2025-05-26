@@ -3,6 +3,7 @@ package dev.bxlab.resultset_mapper.utils;
 import dev.bxlab.resultset_mapper.converters.DefaultConverter;
 import dev.bxlab.resultset_mapper.converters.TypeConverter;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 /**
@@ -74,8 +76,11 @@ public final class ConverterUtils {
      */
     public static Date toDate(String value, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
-        return ExceptionHandler.map(() -> sdf.parse(value),
-                e -> new IllegalStateException("Cannot parse date '" + value + "' with format '" + format + "'", e));
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+            throw new DateTimeParseException(e.getMessage(), value, e.getErrorOffset(), e);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package dev.bxlab.resultset_mapper.converters;
 
 import dev.bxlab.resultset_mapper.configs.FieldConfig;
+import dev.bxlab.resultset_mapper.exceptions.ConversionException;
 import dev.bxlab.resultset_mapper.utils.ConverterUtils;
 
 import java.math.BigDecimal;
@@ -111,11 +112,16 @@ public final class StandardConverters {
      * @param <T> the target type of the converter
      * @param getter the function to extract values from the ResultSet
      * @return a TypeConverter that converts ResultSet values to the target type
+     * @throws ConversionException if an error occurs during conversion
      */
     private static <T> TypeConverter<T> createPrimitiveConverter(ResultSetGetter<T> getter) {
         return (resultSet, columnName, attributes) -> {
-            T value = getter.get(resultSet, columnName);
-            return resultSet.wasNull() ? null : value;
+            try {
+                T value = getter.get(resultSet, columnName);
+                return resultSet.wasNull() ? null : value;
+            } catch (SQLException e) {
+                throw new ConversionException("Failed to convert column '" + columnName + "'", e);
+            }
         };
     }
 
@@ -125,9 +131,16 @@ public final class StandardConverters {
      * @param <T> the target type of the converter
      * @param getter the function to extract values from the ResultSet
      * @return a TypeConverter that converts ResultSet values to the target type
+     * @throws ConversionException if an error occurs during conversion
      */
     private static <T> TypeConverter<T> createBasicConverter(ResultSetGetter<T> getter) {
-        return (resultSet, columnName, attributes) -> getter.get(resultSet, columnName);
+        return (resultSet, columnName, attributes) -> {
+            try {
+                return getter.get(resultSet, columnName);
+            } catch (SQLException e) {
+                throw new ConversionException("Failed to convert column '" + columnName + "'", e);
+            }
+        };
     }
 
     /**
@@ -139,6 +152,7 @@ public final class StandardConverters {
      * @param converter the function to convert from intermediate to target type
      * @param formatter the function to parse string values using a format pattern
      * @return a TypeConverter that converts ResultSet values to the target date/time type
+     * @throws ConversionException if an error occurs during conversion or date parsing
      */
     private static <T, U> TypeConverter<T> createDateConverter(
             ResultSetGetter<U> getter,
@@ -146,12 +160,24 @@ public final class StandardConverters {
             BiFunction<String, String, T> formatter) {
 
         return (resultSet, columnName, attributes) -> {
-            Optional<String> format = Optional.ofNullable((String) attributes.get(FieldConfig.FORMAT_ATTRIBUTE));
+            try {
+                Optional<String> format = Optional.ofNullable((String) attributes.get(FieldConfig.FORMAT_ATTRIBUTE));
 
-            return format.isEmpty()
-                    ? Optional.ofNullable(getter.get(resultSet, columnName)).map(converter).orElse(null)
-                    : Optional.ofNullable(resultSet.getString(columnName))
-                    .map(value -> formatter.apply(value, format.get())).orElse(null);
+                if (format.isEmpty()) {
+                    return Optional.ofNullable(getter.get(resultSet, columnName)).map(converter).orElse(null);
+                }
+
+                return Optional.ofNullable(resultSet.getString(columnName))
+                        .map(value -> {
+                            try {
+                                return formatter.apply(value, format.get());
+                            } catch (Exception e) {
+                                throw new ConversionException("Failed to parse date '" + value + "' with format '" + format.get() + "' for column '" + columnName + "'", e);
+                            }
+                        }).orElse(null);
+            } catch (SQLException e) {
+                throw new ConversionException("Failed to convert column '" + columnName + "'", e);
+            }
         };
     }
 
