@@ -28,6 +28,7 @@ public final class ConverterUtils {
      * @param value  the string value to convert
      * @param format the date format pattern
      * @return the parsed {@link LocalDate}
+     * @throws DateTimeParseException if the text cannot be parsed
      */
     public static LocalDate toLocalDate(String value, String format) {
         return LocalDate.parse(value, DateTimeFormatter.ofPattern(format));
@@ -39,6 +40,7 @@ public final class ConverterUtils {
      * @param value  the string value to convert
      * @param format the date-time format pattern
      * @return the parsed {@link LocalDateTime}
+     * @throws DateTimeParseException if the text cannot be parsed
      */
     public static LocalDateTime toLocalDateTime(String value, String format) {
         return LocalDateTime.parse(value, DateTimeFormatter.ofPattern(format));
@@ -50,6 +52,7 @@ public final class ConverterUtils {
      * @param value  the string value to convert
      * @param format the date-time format pattern
      * @return the parsed {@link ZonedDateTime}
+     * @throws DateTimeParseException if the text cannot be parsed
      */
     public static ZonedDateTime toZonedDateTime(String value, String format) {
         return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(format)).withZoneSameInstant(ZoneOffset.UTC);
@@ -61,6 +64,7 @@ public final class ConverterUtils {
      * @param value  the string value to convert
      * @param format the date-time format pattern
      * @return the parsed {@link OffsetDateTime}
+     * @throws DateTimeParseException if the text cannot be parsed
      */
     public static OffsetDateTime toOffsetDateTime(String value, String format) {
         return OffsetDateTime.parse(value, DateTimeFormatter.ofPattern(format)).withOffsetSameInstant(ZoneOffset.UTC);
@@ -72,7 +76,7 @@ public final class ConverterUtils {
      * @param value  the string value to convert
      * @param format the date format pattern
      * @return the parsed {@link Date}
-     * @throws IllegalStateException if the date string cannot be parsed with the given format
+     * @throws DateTimeParseException if the text cannot be parsed
      */
     public static Date toDate(String value, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);

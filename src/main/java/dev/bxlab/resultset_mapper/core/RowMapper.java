@@ -68,8 +68,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
             FieldConfig fieldConfig = entry.getValue();
 
             // Column name definition
-            String lookupName = fieldConfig.getColumnName()
-                    .orElseThrow(() -> new IllegalStateException("Column name is required"));
+            String lookupName = fieldConfig.getColumnName().orElseThrow();
 
             Optional<String> columnName = this.findColumnName(availableColumns, lookupName);
 
@@ -136,7 +135,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
      * It inspects fields annotated with {@link ColumnMapping} and creates corresponding {@link FieldConfig} instances.
      * Configuration priority is: mapper-level config > annotation config > default naming strategy.
      *
-     * @throws IllegalStateException if a converter specified in an annotation cannot be instantiated
+     * @throws ObjectInstantiationException if a converter specified in an annotation cannot be instantiated
      */
     private void initializeMappings() {
         List<Field> fields = ReflectionUtils.getAllFields(this.targetType);
