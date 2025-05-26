@@ -5,6 +5,7 @@ import dev.bxlab.resultset_mapper.converters.DefaultConverter;
 import dev.bxlab.resultset_mapper.core.ColumnMapping;
 import dev.bxlab.resultset_mapper.core.ResultSetMapper;
 import dev.bxlab.resultset_mapper.core.RowMapperBuilder;
+import dev.bxlab.resultset_mapper.exceptions.ObjectInstantiationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -404,7 +405,7 @@ class RowMapperTest {
                 .forType(UserWithoutDefaultConstructor.class)
                 .build();
 
-        Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
+        Exception exception = assertThrows(ObjectInstantiationException.class, () -> mapper.map(resultSet));
         assertTrue(exception.getMessage().contains("Error mapping to"));
     }
 

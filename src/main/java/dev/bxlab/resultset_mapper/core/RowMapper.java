@@ -1,12 +1,13 @@
-package  dev.bxlab.resultset_mapper.core;
+package dev.bxlab.resultset_mapper.core;
 
-import  dev.bxlab.resultset_mapper.configs.FieldConfig;
-import  dev.bxlab.resultset_mapper.configs.MapperConfig;
-import  dev.bxlab.resultset_mapper.converters.ConverterRegistry;
-import  dev.bxlab.resultset_mapper.converters.StandardConverters;
-import  dev.bxlab.resultset_mapper.converters.TypeConverter;
-import  dev.bxlab.resultset_mapper.utils.ExceptionHandler;
-import  dev.bxlab.resultset_mapper.utils.ReflectionUtils;
+import dev.bxlab.resultset_mapper.configs.FieldConfig;
+import dev.bxlab.resultset_mapper.configs.MapperConfig;
+import dev.bxlab.resultset_mapper.converters.ConverterRegistry;
+import dev.bxlab.resultset_mapper.converters.StandardConverters;
+import dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.exceptions.ObjectInstantiationException;
+import dev.bxlab.resultset_mapper.utils.ExceptionHandler;
+import dev.bxlab.resultset_mapper.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
@@ -76,7 +77,6 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                 throw new IllegalStateException("Column not found: " + lookupName);
             }
 
-            // Type converter definition
             Optional<TypeConverter<?>> converter = fieldConfig.getConverter();
             if (converter.isEmpty()) {
                 if (this.mapperConfig.isIgnoreUnknownTypes()) continue;
@@ -91,7 +91,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
         }
 
         return ExceptionHandler.map(() -> ReflectionUtils.createInstanceWithValues(this.targetType, fieldValues),
-                (e) -> new IllegalStateException("Error mapping to: " + this.targetType.getSimpleName(), e));
+                (e) -> new ObjectInstantiationException(this.targetType, e));
     }
 
     /**
@@ -170,7 +170,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
                         .withAttributes(attributes)
                         .build());
             } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Cannot instantiate converter: " + mappingAnnotation.converter(), e);
+                throw new ObjectInstantiationException(mappingAnnotation.converter(), e);
             }
         }
     }
