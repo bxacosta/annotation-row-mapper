@@ -457,7 +457,7 @@ class RowMapperTest {
         assertNotNull(users);
         assertEquals(3, users.size());
 
-        assertEquals(1, users.getFirst().id());
+        assertEquals(1, users.get(0).id());
         assertEquals("User One", users.get(0).name());
         assertTrue(users.get(0).active());
 

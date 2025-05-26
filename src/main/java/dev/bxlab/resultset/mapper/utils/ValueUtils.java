@@ -32,15 +32,12 @@ public final class ValueUtils {
      * @return true if the value is empty, false otherwise
      */
     public static boolean isEmpty(Object value) {
-        return switch (value) {
-            case null -> true;
-            case String string -> string.trim().isEmpty();
-            case Collection<?> collection -> collection.isEmpty();
-            case Map<?, ?> map -> map.isEmpty();
-            default -> false;
-        };
+        if (value == null) return true;
+        if (value instanceof String) return ((String) value).trim().isEmpty();
+        if (value instanceof Collection) return ((Collection<?>) value).isEmpty();
+        if (value instanceof Map) return ((Map<?, ?>) value).isEmpty();
+        return false;
     }
-
     /**
      * Requires the given value to be non-empty.
      * Throws an IllegalArgumentException with the given message if the value is empty.
