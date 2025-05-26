@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'dev.bxlab.resultset_mapper'
+group = 'dev.bxlab.resultset.mapper'
 version = '1.0-SNAPSHOT'
 
 repositories {
