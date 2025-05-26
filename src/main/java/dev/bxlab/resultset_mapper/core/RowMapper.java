@@ -5,6 +5,7 @@ import dev.bxlab.resultset_mapper.configs.MapperConfig;
 import dev.bxlab.resultset_mapper.converters.ConverterRegistry;
 import dev.bxlab.resultset_mapper.converters.StandardConverters;
 import dev.bxlab.resultset_mapper.converters.TypeConverter;
+import dev.bxlab.resultset_mapper.exceptions.ColumnNotFoundException;
 import dev.bxlab.resultset_mapper.exceptions.ObjectInstantiationException;
 import dev.bxlab.resultset_mapper.utils.ExceptionHandler;
 import dev.bxlab.resultset_mapper.utils.ReflectionUtils;
@@ -74,7 +75,7 @@ public class RowMapper<T> implements ResultSetMapper<T> {
 
             if (columnName.isEmpty()) {
                 if (this.mapperConfig.isIgnoreUnknownColumns()) continue;
-                throw new IllegalStateException("Column not found: " + lookupName);
+                throw new ColumnNotFoundException(lookupName);
             }
 
             Optional<TypeConverter<?>> converter = fieldConfig.getConverter();

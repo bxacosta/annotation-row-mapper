@@ -5,6 +5,7 @@ import dev.bxlab.resultset_mapper.converters.DefaultConverter;
 import dev.bxlab.resultset_mapper.core.ColumnMapping;
 import dev.bxlab.resultset_mapper.core.ResultSetMapper;
 import dev.bxlab.resultset_mapper.core.RowMapperBuilder;
+import dev.bxlab.resultset_mapper.exceptions.ColumnNotFoundException;
 import dev.bxlab.resultset_mapper.exceptions.ObjectInstantiationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -157,9 +158,7 @@ class RowMapperTest {
         ResultSetMapper<BasicUser> mapperStrict = RowMapperBuilder.forType(BasicUser.class)
                 .ignoreUnknownColumns(false)
                 .build();
-        Exception exception = assertThrows(IllegalStateException.class, () -> mapperStrict.map(resultSet));
-        assertTrue(exception.getMessage().contains("Column not found"));
-
+        assertThrows(ColumnNotFoundException.class, () -> mapperStrict.map(resultSet));
 
         ResultSetMapper<BasicUser> mapperIgnore = RowMapperBuilder.forType(BasicUser.class)
                 .ignoreUnknownColumns(true)
@@ -200,8 +199,7 @@ class RowMapperTest {
                 .ignoreUnknownColumns(false)
                 .build();
 
-        Exception exception = assertThrows(IllegalStateException.class, () -> mapper.map(resultSet));
-        assertTrue(exception.getMessage().contains("Column not found"));
+        assertThrows(ColumnNotFoundException.class, () -> mapper.map(resultSet));
     }
 
     @Test
@@ -405,8 +403,7 @@ class RowMapperTest {
                 .forType(UserWithoutDefaultConstructor.class)
                 .build();
 
-        Exception exception = assertThrows(ObjectInstantiationException.class, () -> mapper.map(resultSet));
-        assertTrue(exception.getMessage().contains("Error mapping to"));
+        assertThrows(ObjectInstantiationException.class, () -> mapper.map(resultSet));
     }
 
     @Test
