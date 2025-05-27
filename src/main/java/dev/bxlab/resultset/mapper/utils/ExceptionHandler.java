@@ -54,6 +54,11 @@ public final class ExceptionHandler {
      */
     @FunctionalInterface
     public interface ThrowingSupplier<T> {
+        /**
+         * Gets the result of the operation.
+         * @return the result
+         * @throws Exception if the operation fails
+         */
         T get() throws Exception;
     }
 
@@ -62,6 +67,10 @@ public final class ExceptionHandler {
      */
     @FunctionalInterface
     public interface ThrowingRunner {
+        /**
+         * Runs the operation.
+         * @throws Exception if the operation fails
+         */
         void run() throws Exception;
     }
 }

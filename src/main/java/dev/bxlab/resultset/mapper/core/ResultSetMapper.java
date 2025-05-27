@@ -8,6 +8,8 @@ import java.util.List;
 /**
  * Functional interface for mapping a single row of a {@link ResultSet} to a Java object.
  * Intended for use as a row mapper in database operations.
+ *
+ * @param <T> the type of the object to map to
  */
 @FunctionalInterface
 public interface ResultSetMapper<T> {

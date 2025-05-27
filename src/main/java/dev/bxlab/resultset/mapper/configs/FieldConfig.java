@@ -16,6 +16,9 @@ import java.util.Optional;
  */
 public class FieldConfig {
 
+    /**
+     * The format attribute key.
+     */
     public static final String FORMAT_ATTRIBUTE = "format";
 
     private final String columnName;
@@ -89,11 +92,11 @@ public class FieldConfig {
     }
 
     /**
-     * Gets a specific attribute with the indicated type.
-     *
-     * @param key Attribute key
-     * @param type Expected value type
-     * @return The attribute value or empty if it doesn't exist
+     * Gets an attribute value by key and type.
+     * @param <T> the type of the attribute
+     * @param key the attribute key
+     * @param type the attribute type
+     * @return an Optional containing the attribute value, or an empty Optional if the attribute is not found or has a different type
      */
     public <T> Optional<T> getAttribute(String key, Class<T> type) {
         Object value = this.attributes.get(key);

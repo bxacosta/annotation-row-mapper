@@ -17,6 +17,9 @@ public class ConverterRegistry {
 
     private final Map<Class<?>, TypeConverter<?>> converters;
 
+    /**
+     * Creates a new ConverterRegistry with default converters registered.
+     */
     public ConverterRegistry() {
         this.converters = new ConcurrentHashMap<>();
     }

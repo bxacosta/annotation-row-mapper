@@ -7,6 +7,8 @@ import java.util.Map;
 /**
  * Functional interface for converting database column values from a ResultSet to Java objects.
  * Implementations of this interface define specific conversion strategies for different data types.
+ *
+ * @param <T> the type of the value to convert
  */
 @FunctionalInterface
 public interface TypeConverter<T> {

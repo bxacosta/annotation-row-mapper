@@ -11,6 +11,9 @@ public class ColumnNotFoundException extends MappingException {
     @Serial
     private static final long serialVersionUID = -2832876242479260998L;
 
+    /**
+     * The name of the column that was not found.
+     */
     private final String columnName;
 
     /**

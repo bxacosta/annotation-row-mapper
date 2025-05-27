@@ -9,6 +9,9 @@ public class ObjectInstantiationException extends MappingException {
 
     @Serial
     private static final long serialVersionUID = 362227393182350949L;
+    /**
+     * The type of the object that could not be instantiated.
+     */
     private final Class<?> targetType;
 
     /**
