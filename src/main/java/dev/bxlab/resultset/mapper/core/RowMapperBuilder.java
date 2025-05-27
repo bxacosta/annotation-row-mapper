@@ -209,14 +209,13 @@ public class RowMapperBuilder<T> {
     }
 
     /**
-     * Builds the {@link ResultSetMapper} (specifically a {@link RowMapper}) instance
-     * based on the current configuration.
+     * Builds the {@link RowMapper} instance based on the current configuration.
      * Validates that essential configurations like target type and naming strategy are set.
      *
-     * @return a new {@link ResultSetMapper} instance
-     * @throws IllegalArgumentException if required configurations are missing or invalid
+     * @return a new {@link RowMapper} instance
+     * @throws IllegalArgumentException if required, configurations are missing or invalid
      */
-    public ResultSetMapper<T> build() {
+    public RowMapper<T> build() {
         ValueUtils.requireNonNull(this.targetType, "Target type can not be null");
         ValueUtils.requireNonNull(this.namingStrategy, "Naming strategy can not be null");
 
