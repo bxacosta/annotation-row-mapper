@@ -3,7 +3,7 @@ plugins {
     id "maven-publish"
 }
 
-group = "dev.bxlab.resultset.mapper"
+group = "dev.bxlab.libs"
 version = "1.0-SNAPSHOT"
 
 repositories {
