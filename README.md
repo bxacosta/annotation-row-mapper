@@ -31,7 +31,7 @@ and can be consumed by configuring your project's Maven repository settings.
 
 **Gradle (Groovy DSL):**
 
-Add the following repository and dependency to your `build.gradle` file:
+Include the GitLab repository and dependency in your `build.gradle` file:
 
 ```groovy
 repositories {
@@ -49,7 +49,7 @@ dependencies {
 
 **Maven:**
 
-Include the GitLab repository and dependency in your `pom.xml`:
+Include the GitLab repository and dependency in your `pom.xml` file:
 
 ```xml
 <repositories>
@@ -90,7 +90,7 @@ Include the GitLab repository and dependency in your `pom.xml`:
    }
    ```
 
-   Or using a Java Record (for immutability and conciseness):
+   Or using a Java Record:
    ```java
    public record User(
        @ColumnMapping("user_id") int id,
@@ -101,7 +101,7 @@ Include the GitLab repository and dependency in your `pom.xml`:
 
 2. **Create a `RowMapper` instance:**
 
-   For the `User` class o record:
+   For the `User` `class` or `record`:
    ```java
    ResultSetMapper<User> mapper = RowMapperBuilder.forType(User.class).build();
    ```
@@ -109,23 +109,23 @@ Include the GitLab repository and dependency in your `pom.xml`:
 3. **Map a `ResultSet`:**
 
    ```java
-    List<User> userList = new ArrayList<>();
+    List<User> users = new ArrayList<>();
     // Assuming 'connection' is a valid JDBC connection
     try (PreparedStatement preparedStatement = connection
             .prepareStatement("SELECT user_id, username, is_active FROM users");
          ResultSet resultSet = preparedStatement.executeQuery()) {
         while (resultSet.next()) {
-            userList.add(mapper.map(resultSet));
+            users.add(mapper.map(resultSet));
         }
     }
    
     // Or map all rows at once:
-    List<User> userList;
+    List<User> users;
     // Assuming 'connection' is a valid JDBC connection
     try (PreparedStatement preparedStatement = connection
             .prepareStatement("SELECT user_id, username, is_active FROM users");
          ResultSet resultSet = preparedStatement.executeQuery()) {
-        userList = mapper.mapAll(resultSet);
+        users = mapper.mapAll(resultSet);
     }
     ```
 
@@ -133,8 +133,8 @@ Include the GitLab repository and dependency in your `pom.xml`:
 
 ### Custom Type Converters
 
-If you need to map a database type to a custom Java type, or want to override the conversion for an existing type, you
-can register a converter.
+If you need to map a database type to a custom Java type or want to override the conversion for an existing type, you
+can register a custom converter.
 
 **Using class converter**
 
@@ -146,7 +146,11 @@ public enum Status {
 // Custom converter class for the Status enum
 public class StatusEnumConverter implements TypeConverter<Status> {
     @Override
-    public Status convert(ResultSet resultSet, String columnName, Map<String, Object> attributes) throws SQLException {
+    public Status convert(
+            ResultSet resultSet, 
+            String columnName, 
+            Map<String, Object> attributes
+    ) throws SQLException {
         String value = resultSet.getString(columnName);
         if (value == null) return null;
         try {
@@ -163,7 +167,7 @@ ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
         .build();
 
 
-// Option 2: Register the converter for a specific field via @ColumnMapping
+// Option 2: Register the converter for a specific field
 public class Product {
     @ColumnMapping(value = "status", converter = StatusEnumConverter.class)
     private Status status;
@@ -178,7 +182,10 @@ ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
             String value = resultSet.getString(columnName);
             if (value == null) return null;
             value = value.trim().toUpperCase();
-            return value.equals("Y") || value.equals("YES") || value.equals("TRUE") || value.equals("1");
+            return value.equals("Y") 
+                    || value.equals("YES") 
+                    || value.equals("TRUE") 
+                    || value.equals("1");
         })
         .build();
 ```
@@ -197,17 +204,19 @@ ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
                     double value = resultSet.getDouble(columnName);
                     Double min = (Double) attributes.get("minValue");
                     Double max = (Double) attributes.get("maxValue");
-                    if (value < min) throw new IllegalArgumentException("Value below minimum");
-                    if (value > max) throw new IllegalArgumentException("Value above maximum");
+                    if (value < min) 
+                        throw new IllegalArgumentException("Value below minimum");
+                    if (value > max) 
+                        throw new IllegalArgumentException("Value above maximum");
                     return value;
                 })
         )
         .build();
 ```
 
-When you register a global TypeConverter for a specific data type (e.g., java.util.Date, Boolean, Integer),
-it will replace any existing default library converter or any previously registered global converter
-for that same data type.
+> [!NOTE]
+> When you register a global TypeConverter for a specific data type (e.g., Boolean, Integer, LocalDate, etc.), it will 
+> replace any existing default library converter or any previously registered global converter for that same data type.
 
 ### Naming Strategies
 
