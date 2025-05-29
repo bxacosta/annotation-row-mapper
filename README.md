@@ -136,86 +136,86 @@ Include the GitLab repository and dependency in your `pom.xml` file:
 If you need to map a database type to a custom Java type or want to override the conversion for an existing type, you
 can register a custom converter.
 
-**Using class converter**
+- **Using class converter**
 
-```java
-public enum Status {
-    ACTIVE, INACTIVE, PENDING
-}
-
-// Custom converter class for the Status enum
-public class StatusEnumConverter implements TypeConverter<Status> {
-    @Override
-    public Status convert(
-            ResultSet resultSet, 
-            String columnName, 
-            Map<String, Object> attributes
-    ) throws SQLException {
-        String value = resultSet.getString(columnName);
-        if (value == null) return null;
-        try {
-            return Status.valueOf(value.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null; // or throw, depending on your needs
-        }
+    ```java
+    public enum Status {
+        ACTIVE, INACTIVE, PENDING
     }
-}
-
-// Option 1: Register converter globally for the Status type
-ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
-        .registerConverter(Status.class, new StatusEnumConverter())
-        .build();
-
-
-// Option 2: Register the converter for a specific field
-public class Product {
-    @ColumnMapping(value = "status", converter = StatusEnumConverter.class)
-    private Status status;
-}
-```
-
-**Using lambda syntax**
-
-```java
-ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
-        .registerConverter(Boolean.class, (resultSet, columnName, attributes) -> {
+    
+    // Custom converter class for the Status enum
+    public class StatusEnumConverter implements TypeConverter<Status> {
+        @Override
+        public Status convert(
+                ResultSet resultSet, 
+                String columnName, 
+                Map<String, Object> attributes
+        ) throws SQLException {
             String value = resultSet.getString(columnName);
             if (value == null) return null;
-            value = value.trim().toUpperCase();
-            return value.equals("Y") 
-                    || value.equals("YES") 
-                    || value.equals("TRUE") 
-                    || value.equals("1");
-        })
-        .build();
-```
+            try {
+                return Status.valueOf(value.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return null; // or throw, depending on your needs
+            }
+        }
+    }
+    
+    // Option 1: Register converter globally for the Status type
+    ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
+            .registerConverter(Status.class, new StatusEnumConverter())
+            .build();
+    
+    
+    // Option 2: Register the converter for a specific field
+    public class Product {
+        @ColumnMapping(value = "status", converter = StatusEnumConverter.class)
+        private Status status;
+    }
+    ```
 
-**Using lambda syntax with custom attributes**
+- **Using lambda syntax**
 
-You can add custom attributes to a field and use them in your lambda converter:
+    ```java
+    ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
+            .registerConverter(Boolean.class, (resultSet, columnName, attributes) -> {
+                String value = resultSet.getString(columnName);
+                if (value == null) return null;
+                value = value.trim().toUpperCase();
+                return value.equals("Y") 
+                        || value.equals("YES") 
+                        || value.equals("TRUE") 
+                        || value.equals("1");
+            })
+            .build();
+    ```
 
-```java
-ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
-        .mapField("stock", config -> config
-                .withAttribute("minValue", 0.0)
-                .withAttribute("maxValue", 100.0)
-                // Register the converter for this specific field
-                .withConverter((resultSet, columnName, attributes) -> {
-                    double value = resultSet.getDouble(columnName);
-                    Double min = (Double) attributes.get("minValue");
-                    Double max = (Double) attributes.get("maxValue");
-                    if (value < min) 
-                        throw new IllegalArgumentException("Value below minimum");
-                    if (value > max) 
-                        throw new IllegalArgumentException("Value above maximum");
-                    return value;
-                })
-        )
-        .build();
-```
+- **Using lambda syntax with custom attributes**
+
+    You can add custom attributes to a field and use them in your lambda converter:
+
+    ```java
+    ResultSetMapper<Product> mapper = RowMapperBuilder.forType(Product.class)
+            .mapField("stock", config -> config
+                    .withAttribute("minValue", 0.0)
+                    .withAttribute("maxValue", 100.0)
+                    // Register the converter for this specific field
+                    .withConverter((resultSet, columnName, attributes) -> {
+                        double value = resultSet.getDouble(columnName);
+                        Double min = (Double) attributes.get("minValue");
+                        Double max = (Double) attributes.get("maxValue");
+                        if (value < min) 
+                            throw new IllegalArgumentException("Value below minimum");
+                        if (value > max) 
+                            throw new IllegalArgumentException("Value above maximum");
+                        return value;
+                    })
+            )
+            .build();
+    ```
 
 > [!NOTE]
-> When you register a global TypeConverter for a specific data type (e.g., Boolean, Integer, LocalDate, etc.), it will 
+> When you register a global `TypeConverter<T>` for a specific data type (e.g., Boolean, Integer, LocalDate, etc.), it will 
 > replace any existing default library converter or any previously registered global converter for that same data type.
 
 ### Naming Strategies
