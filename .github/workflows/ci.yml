@@ -32,6 +32,18 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
+      - name: List generated files in CI
+        if: always() # Ejecutar siempre para ver qué pasó
+        run: |
+          echo "Listing contents of build/test-results/test/ directory in CI:"
+          ls -R build/test-results/test || echo "CI: Directory build/test-results/test/ not found or empty."
+          echo "-----------------------------------------------------"
+          echo "Specifically listing XML files in build/test-results/test/ in CI:"
+          find build/test-results/test -name "*.xml" -type f -print || echo "CI: No XML files found in build/test-results/test/"
+          echo "-----------------------------------------------------"
+          echo "Listing ALL XML files under build/test-results/ in CI (recursive):"
+          find build/test-results -name "*.xml" -type f -print || echo "CI: No XML files found anywhere under build/test-results/"
+
       - name: Generate test report
         uses: dorny/test-reporter@v2
         if: always()
