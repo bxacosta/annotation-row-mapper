@@ -65,7 +65,7 @@ jobs:
           files: |
             build/libs/*.jar
           tag_name: v${{ steps.version.outputs.VERSION }}
-          name: Release ${{ steps.extract_version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
           draft: false
           prerelease: false
           generate_release_notes: true
