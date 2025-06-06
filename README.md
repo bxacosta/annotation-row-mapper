@@ -43,7 +43,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.bxlab.libs:resultset-mapper:1.0-SNAPSHOT'
+    implementation 'dev.bxlab.libs:resultset-mapper:1.0.0'
 }
 ```
 
