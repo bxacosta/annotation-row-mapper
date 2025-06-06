@@ -52,6 +52,7 @@ dependencies {
 Include the GitLab repository and dependency in your `pom.xml` file:
 
 ```xml
+
 <repositories>
     <repository>
         <id>central</id>
@@ -64,11 +65,11 @@ Include the GitLab repository and dependency in your `pom.xml` file:
 </repositories>
 
 <dependencies>
-    <dependency>
-        <groupId>dev.bxlab.libs</groupId>
-        <artifactId>resultset-mapper</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </dependency>
+<dependency>
+    <groupId>dev.bxlab.libs</groupId>
+    <artifactId>resultset-mapper</artifactId>
+    <version>1.0.0</version>
+</dependency>
 </dependencies>
 ```
 
